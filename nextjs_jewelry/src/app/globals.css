@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-montserrat), 'Montserrat', sans-serif;
+  --font-serif: var(--font-cormorant), 'Cormorant Garamond', serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-cormorant), 'Cormorant Garamond', serif;
+  
+  /* Premium Luxury Colors */
+  --color-gold: #D4AF37;
+  --color-gold-light: #F5E6C8;
+  --color-gold-dark: #AA7C11;
+  --color-rose-gold: #B76E79;
+  --color-navy-dark: #001e38;
+  --color-navy: #002e54;
+  --color-obsidian: #0B0F19;
+  --color-cream: #FDFBF7;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Custom Luxury Animations */
+  --animate-fade-in-up: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-shimmer: shimmer 2.5s infinite linear;
+  --animate-pulse-gold: pulseGold 2s infinite ease-in-out;
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes pulseGold {
+    0%, 100% { box-shadow: 0 0 10px rgba(179, 144, 78, 0.15); }
+    50% { box-shadow: 0 0 25px rgba(179, 144, 78, 0.4); }
+  }
+}
+
+:root {
+  /* Aura Luxury Theme Palette */
+  --background: #FCFAF7;
+  --foreground: #2A1A1E;
+  
+  --card: #FFFFFF;
+  --card-foreground: #2A1A1E;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #2A1A1E;
+  
+  --primary: #0F172A; /* Aura Rich Burgundy */
+  --primary-foreground: #FDFBF7;
+  
+  --secondary: #EBE4D8; /* Soft Gold-Cream */
+  --secondary-foreground: #0F172A;
+  
+  --muted: #F3ECE2;
+  --muted-foreground: #7E6D5D;
+  
+  --accent: #FAF0E4;
+  --accent-foreground: #0F172A;
+  
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #E8DFD3;
+  --input: #E8DFD3;
+  --ring: #B3904E; /* Aura Gold */
+  
+  --chart-1: #0F172A;
+  --chart-2: #B3904E;
+  --chart-3: #7E6D5D;
+  --chart-4: #D4AF37;
+  --chart-5: #2A1A1E;
+  
+  --radius: 0.625rem;
+  
+  --sidebar: #FCFAF7;
+  --sidebar-foreground: #2A1A1E;
+  --sidebar-primary: #0F172A;
+  --sidebar-primary-foreground: #FDFBF7;
+  --sidebar-accent: #EBE4D8;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E8DFD3;
+  --sidebar-ring: #B3904E;
+}
+
+.dark {
+  /* Dark mode is disabled or configured as a deep charcoal-gold luxury mode */
+  --background: #140E0F;
+  --foreground: #FCFAF7;
+  
+  --card: #1C1516;
+  --card-foreground: #FCFAF7;
+  
+  --popover: #1C1516;
+  --popover-foreground: #FCFAF7;
+  
+  --primary: #B3904E;
+  --primary-foreground: #140E0F;
+  
+  --secondary: #2C1A1D;
+  --secondary-foreground: #FCFAF7;
+  
+  --muted: #2A1E20;
+  --muted-foreground: #A19082;
+  
+  --accent: #3A2629;
+  --accent-foreground: #FCFAF7;
+  
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #3A292C;
+  --input: #3A292C;
+  --ring: #B3904E;
+  
+  --sidebar: #140E0F;
+  --sidebar-foreground: #FCFAF7;
+  --sidebar-primary: #B3904E;
+  --sidebar-primary-foreground: #140E0F;
+  --sidebar-accent: #2C1A1D;
+  --sidebar-accent-foreground: #FCFAF7;
+  --sidebar-border: #3A292C;
+  --sidebar-ring: #B3904E;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Precise Bluestone popular category styles */
+.bluestone-category-sec-container {
+  width: 100%;
+  background-color: transparent;
+  padding-bottom: 2rem;
+}
+
+.bluestone-category-sec-container div[style*="grid-template-areas"] {
+  grid-auto-rows: 15vw; /* Mobile default height */
+  gap: 3px !important;
+  padding: 10px !important;
+}
+
+@media (min-width: 768px) {
+  .bluestone-category-sec-container {
+    max-width: 90% !important;
+    width: 1400px !important;
+    margin: 0 auto !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .bluestone-category-sec-container div[style*="grid-template-areas"] {
+    grid-auto-rows: 5.6vw !important; /* Matches Bluestone desktop row ratio */
+    gap: 6px !important;
+    padding: 10px 5% !important;
+  }
+  .bluestone-category-sec-container .category-block a {
+    font-size: 0.95rem !important;
+    padding: 8px 12px !important;
+  }
+}
+
+.bluestone-category-sec-container .category-block img {
+  object-fit: cover !important;
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.bluestone-category-sec-container .category-block > div:hover img {
+  transform: scale(1.05) !important;
+}
+
+.bluestone-category-sec-container .category-block > div {
+  overflow: hidden !important;
+  border-radius: 5px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+@media (min-width: 768px) {
+  .bluestone-category-sec-container .category-block > div {
+    border-radius: 16px !important;
+  }
+}
+
+/* Scroll Animations for Bento Grid */
+.bluestone-category-sec-container .category-block {
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.bluestone-category-sec-container .category-block.animate-left {
+  transform: translate3d(-100px, 0, 0);
+}
+
+.bluestone-category-sec-container .category-block.animate-right {
+  transform: translate3d(100px, 0, 0);
+}
+
+.bluestone-category-sec-container .category-block.animate-up {
+  transform: translate3d(0, 100px, 0);
+}
+
+.bluestone-category-sec-container .category-block.animate-down {
+  transform: translate3d(0, -100px, 0);
+}
+
+.bluestone-category-sec-container .category-block.in-view {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+/* Scoped styling for Aura Circular Header Navigation */
+.megamenu-group .firstlevel-menu {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 12px 0 8px !important;
+  margin: 0 !important;
+  list-style: none !important;
+  flex-wrap: nowrap !important;
+}
+.megamenu-group .cat-circle-item {
+  position: static !important; /* Critical: allows mega-menus to align to full menu-group container width */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 86px !important;
+  cursor: pointer !important;
+}
+.megamenu-group .cat-circle-item .circle-trigger {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+/* Double Concentric Gold Border Ring Hover Animation */
+.megamenu-group .cat-circle-item__ring {
+  position: relative !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  padding: 3px !important;
+  border: 1px solid rgba(15,23,42,0.12) !important; /* Aura deep red border */
+  background: #fff !important;
+  transition: border-color 0.45s cubic-bezier(.25,.8,.25,1),
+              box-shadow 0.45s cubic-bezier(.25,.8,.25,1),
+              transform 0.4s cubic-bezier(.25,.8,.25,1) !important;
+}
+.megamenu-group .cat-circle-item__ring::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 2px !important;
+  border-radius: 50% !important;
+  border: 1px dashed rgba(15,23,42,0.15) !important;
+  transition: border-color 0.4s ease, border-style 0.4s ease, transform 0.5s ease !important;
+  pointer-events: none !important;
+}
+.megamenu-group .cat-circle-item__img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.megamenu-group .cat-circle-item__img img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  transition: transform 0.5s cubic-bezier(.25,.8,.25,1) !important;
+}
+.megamenu-group .cat-circle-item__label {
+  font-size: 11px !important;
+  color: #555 !important;
+  text-align: center !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+  transition: color 0.3s ease !important;
+  font-weight: 600 !important;
+}
+/* Hover Interactions */
+.megamenu-group .cat-circle-item:hover .cat-circle-item__ring {
+  border-color: #0F172A !important;
+  box-shadow: 0 0 15px rgba(15,23,42,0.2) !important;
+  transform: translateY(-2px) !important;
+}
+.megamenu-group .cat-circle-item:hover .cat-circle-item__ring::before {
+  border-color: #0F172A !important;
+  border-style: solid !important;
+  transform: scale(0.96) rotate(90deg) !important;
+}
+.megamenu-group .cat-circle-item:hover .cat-circle-item__img img {
+  transform: scale(1.1) !important;
+}
+.megamenu-group .cat-circle-item:hover .cat-circle-item__label {
+  color: #0F172A !important;
+}
+/* Selected State */
+.megamenu-group .cat-circle-item--active .cat-circle-item__ring {
+  border-color: #0F172A !important;
+  border-width: 1.5px !important;
+  box-shadow: 0 0 10px rgba(15,23,42,0.15) !important;
+}
+.megamenu-group .cat-circle-item--active .cat-circle-item__label {
+  color: #0F172A !important;
+}
+
+/* Reposition Megamenu Dropdown cleanly under circular nav bar */
+.megamenu-group .secondlevel-menu {
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+}
