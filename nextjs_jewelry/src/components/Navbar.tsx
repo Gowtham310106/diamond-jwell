@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Heart, User, ShoppingBag, MapPin, Calendar, HelpCircle, Menu, X } from 'lucide-react';
+import { Search, Heart, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { CATEGORIES } from './CategoryNav';
 
 interface NavbarProps {
@@ -32,22 +32,10 @@ export default function Navbar({ activeTab, setActiveTab, cartCount, onOpenCart,
           }`}
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] tracking-wider uppercase font-semibold">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5">
-                <span>Gold Rate (22K): ₹6,840/g</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-5">
-              <a href="#" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
-                <MapPin className="h-3 w-3" /> Find Store
-              </a>
-              <a href="#" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
-                <Calendar className="h-3 w-3" /> Book Appointment
-              </a>
-              <a href="#" className="hidden sm:flex items-center gap-1 hover:opacity-80 transition-opacity">
-                <HelpCircle className="h-3 w-3" /> Contact Us
-              </a>
-            </div>
+            <span className="flex items-center gap-1.5">
+              <span>Gold Rate (22K): ₹6,840/g</span>
+            </span>
+            <span className="hidden sm:block opacity-60 tracking-widest">Aura Diamonds &amp; Jewellery</span>
           </div>
         </div>
 

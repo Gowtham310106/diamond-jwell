@@ -175,9 +175,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
   html {
     @apply font-sans;
+    overflow-x: hidden;
   }
 }
 
@@ -265,21 +267,43 @@
 /* Scoped styling for Aura Circular Header Navigation */
 .megamenu-group .firstlevel-menu {
   display: flex !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   align-items: center !important;
-  gap: 16px !important;
-  padding: 12px 0 8px !important;
+  gap: 8px !important;
+  padding: 8px 0 6px !important;
   margin: 0 !important;
   list-style: none !important;
   flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.megamenu-group .firstlevel-menu::-webkit-scrollbar {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .megamenu-group .firstlevel-menu {
+    justify-content: center !important;
+    gap: 16px !important;
+    padding: 12px 0 8px !important;
+    overflow-x: visible !important;
+  }
 }
 .megamenu-group .cat-circle-item {
   position: static !important; /* Critical: allows mega-menus to align to full menu-group container width */
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  width: 86px !important;
+  width: 68px !important;
   cursor: pointer !important;
+}
+
+@media (min-width: 640px) {
+  .megamenu-group .cat-circle-item {
+    width: 86px !important;
+  }
 }
 .megamenu-group .cat-circle-item .circle-trigger {
   display: flex !important;
@@ -294,15 +318,22 @@
 /* Double Concentric Gold Border Ring Hover Animation */
 .megamenu-group .cat-circle-item__ring {
   position: relative !important;
-  width: 60px !important;
-  height: 60px !important;
+  width: 52px !important;
+  height: 52px !important;
   border-radius: 50% !important;
   padding: 3px !important;
-  border: 1px solid rgba(15,23,42,0.12) !important; /* Aura deep red border */
+  border: 1px solid rgba(15,23,42,0.12) !important;
   background: #fff !important;
   transition: border-color 0.45s cubic-bezier(.25,.8,.25,1),
               box-shadow 0.45s cubic-bezier(.25,.8,.25,1),
               transform 0.4s cubic-bezier(.25,.8,.25,1) !important;
+}
+
+@media (min-width: 640px) {
+  .megamenu-group .cat-circle-item__ring {
+    width: 60px !important;
+    height: 60px !important;
+  }
 }
 .megamenu-group .cat-circle-item__ring::before {
   content: '' !important;
@@ -392,6 +423,14 @@
   top: 100% !important;
   left: 0 !important;
   width: 100% !important;
+}
+
+/* On mobile, dropdown is edge-to-edge with no border radius */
+@media (max-width: 639px) {
+  .megamenu-group .secondlevel-menu {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 
 /* Staggered Circular Category Items entrance transitions */

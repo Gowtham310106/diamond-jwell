@@ -312,6 +312,8 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
           : 'relative bg-white border-b border-[#e5dcd3]'
       } ${isTransparent ? 'is-transparent' : 'is-scrolled'}`}
       onMouseLeave={() => {
+        // Only close on genuine hover devices — touch devices shouldn't fire this
+        if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) return;
         if (closeTimerRef.current) {
           clearTimeout(closeTimerRef.current);
           closeTimerRef.current = null;
@@ -358,31 +360,43 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
         {/* Full-width Mega-Menu Dropdown Panel aligned exactly to max-w-7xl container bounds */}
         {activeCategory && activeCatData && (
           <div 
-            className="absolute top-full left-0 right-0 w-full pt-1.5 z-[2100] animate-fade-in secondlevel-menu px-4 sm:px-6 lg:px-8"
+            className="absolute top-full left-0 right-0 w-full pt-1.5 z-[2100] animate-fade-in secondlevel-menu px-0 sm:px-4 lg:px-8"
             onMouseEnter={handleDropdownMouseEnter}
             onMouseLeave={handleDropdownMouseLeave}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white border border-[#e5dcd3] shadow-[0_20px_50px_rgba(48,7,8,0.15)] rounded-2xl overflow-hidden flex flex-col md:flex-row min-h-[380px]">
+            <div className="bg-white border border-[#e5dcd3] shadow-[0_20px_50px_rgba(48,7,8,0.15)] rounded-none sm:rounded-2xl overflow-hidden flex flex-col md:flex-row max-h-[80vh] sm:max-h-none overflow-y-auto sm:overflow-visible">
               
+              {/* Mobile close button */}
+              <button
+                className="sm:hidden flex items-center justify-between w-full px-5 py-3 border-b border-[#e5dcd3] bg-[#FCFAF7] text-xs font-bold uppercase tracking-widest text-[#0F172A]"
+                onClick={() => setActiveCategory(null)}
+              >
+                <span>{activeCatData.name}</span>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
               {/* Left Side: Columns of Subcategories (with miniature thumbnail icons) */}
-              <div className="flex-grow p-6 md:p-8">
-                <h4 className="text-xs tracking-widest uppercase font-bold text-[#0F172A] border-b border-[#e5dcd3] pb-2 mb-5">
+              <div className="flex-grow p-5 md:p-8">
+                <h4 className="text-xs tracking-widest uppercase font-bold text-[#0F172A] border-b border-[#e5dcd3] pb-2 mb-5 hidden sm:block">
                   Shop By Category
                 </h4>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4 sm:gap-y-4 sm:gap-x-6">
                   {activeCatData.items.map((sub, idx) => (
                     <a 
                       key={idx}
                       href={sub.link}
                       className="flex items-center gap-3 py-1 group/item cursor-pointer text-left"
+                      onClick={() => setActiveCategory(null)}
                     >
                       {/* Subcategory mini thumbnail icon */}
                       <img 
                         src={getSubcategoryIcon(sub.name)} 
                         alt="" 
-                        className="h-8 w-8 object-contain rounded-full bg-[#FCFAF7] border border-[#e5dcd3]/50 p-1 transition-transform group-hover/item:scale-105" 
+                        className="h-8 w-8 object-contain rounded-full bg-[#FCFAF7] border border-[#e5dcd3]/50 p-1 transition-transform group-hover/item:scale-105 flex-shrink-0" 
                         loading="lazy"
                       />
                       <span className="text-xs font-semibold text-[#0F172A]/85 group-hover/item:text-[#0F172A] tracking-wide transition-colors">
@@ -394,7 +408,7 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
               </div>
 
               {/* Right Side: Editorial Banner Section */}
-              <div className="w-full md:w-80 bg-[#FCFAF7] border-t md:border-t-0 md:border-l border-[#e5dcd3] p-6 flex flex-col justify-between right-side-category-banner-section text-left">
+              <div className="w-full md:w-72 bg-[#FCFAF7] border-t md:border-t-0 md:border-l border-[#e5dcd3] p-5 md:p-6 flex flex-col justify-between right-side-category-banner-section text-left">
                 <div className="space-y-4">
                   <div className="overflow-hidden rounded-xl border border-[#e5dcd3] relative aspect-[4/3] w-full">
                     <img 
@@ -411,7 +425,7 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
                 
                 <a 
                   href={activeCatData.bannerLink}
-                  className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0F172A] hover:underline"
+                  className="mt-4 sm:mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0F172A] hover:underline"
                 >
                   Explore Now
                   <svg className="h-3 w-3 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
