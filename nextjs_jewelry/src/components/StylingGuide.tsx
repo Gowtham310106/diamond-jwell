@@ -70,11 +70,16 @@ export default function StylingGuide() {
     setActiveIndex((prev) => (prev > 0 ? prev - 1 : storyCards.length - 1));
   };
 
-  // Auto-advance every 4 seconds
+  // Auto-advance interval: only active when the current active card has no video.
   useEffect(() => {
+    const activeCard = storyCards[activeIndex];
+    if (activeCard.video) {
+      // Clear interval when current active card is a video to let the video play to completion.
+      return;
+    }
     const timer = setInterval(goNext, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [activeIndex]);
 
   const getVisibleCards = () => {
     const total = storyCards.length;
@@ -176,11 +181,12 @@ export default function StylingGuide() {
                   <div className="relative w-full h-full">
                     {card.video ? (
                       <video
+                        key={`${index}-${isCenter}`}
                         src={card.video}
-                        autoPlay
+                        autoPlay={isCenter}
                         muted
-                        loop
                         playsInline
+                        onEnded={isCenter ? goNext : undefined}
                         className="w-full h-full object-cover"
                       />
                     ) : (
