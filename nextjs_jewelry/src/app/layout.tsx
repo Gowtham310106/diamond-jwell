@@ -18,6 +18,15 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Aura | Premium Fine Jewellery, Gold & Diamonds",
   description: "Explore Aura: gold jewellery, diamond rings, necklaces, earrings and bespoke craftsmanship.",
+  icons: {
+    icon: "/icon.svg",
+  },
+  openGraph: {
+    title: "Aura | Premium Fine Jewellery",
+    description: "Hand-crafted certified diamond jewelry, loose solitaires, and luxury bridal collections.",
+    siteName: "Aura Diamonds & Jewellery",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
