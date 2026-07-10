@@ -285,10 +285,11 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
         
         {/* Horizontal Row of Aura circular categories */}
         <div className="flex justify-start md:justify-center items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-hide firstlevel-menu">
-          {CATEGORIES.map((cat) => (
+          {CATEGORIES.map((cat, index) => (
             <div
               key={cat.id}
               className={`cat-circle-item group ${activeCategory === cat.id ? 'cat-circle-item--active' : ''}`}
+              style={{ animationDelay: `${index * 75}ms` }}
               onMouseEnter={() => handleMouseEnter(cat.id)}
               onMouseLeave={handleMouseLeave}
             >

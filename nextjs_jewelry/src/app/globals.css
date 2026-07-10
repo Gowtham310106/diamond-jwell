@@ -393,3 +393,20 @@
   left: 0 !important;
   width: 100% !important;
 }
+
+/* Staggered Circular Category Items entrance transitions */
+@keyframes circleSlideDownFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.firstlevel-menu .cat-circle-item {
+  opacity: 0;
+  animation: circleSlideDownFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
