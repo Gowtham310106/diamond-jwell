@@ -83,7 +83,7 @@ export default function ExchangeProgram() {
             className="font-serif italic text-base sm:text-lg text-[#0F172A] leading-relaxed font-medium"
             style={{ fontFamily: '"Playfair Display", "Fraunces", serif' }}
           >
-            "Trust us to be part of your precious moments and to deliver jewellery that you'll cherish forever."
+            &ldquo;Trust us to be part of your precious moments and to deliver jewellery that you&apos;ll cherish forever.&rdquo;
           </p>
           <div className="flex items-center justify-center gap-2 mt-2">
             <div className="h-[1px] w-28 bg-gradient-to-r from-transparent to-[#0F172A]/30" />
