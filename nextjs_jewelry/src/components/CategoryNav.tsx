@@ -232,6 +232,10 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
   const activeCatData = CATEGORIES.find(c => c.id === activeCategory);
 
   const handleMouseEnter = (catId: string) => {
+    // Only set hover on devices that support genuine hover pointer interactions
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
@@ -240,6 +244,9 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
   };
 
   const handleMouseLeave = () => {
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
     }
@@ -249,6 +256,9 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
   };
 
   const handleDropdownMouseEnter = () => {
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
@@ -256,19 +266,34 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
   };
 
   const handleDropdownMouseLeave = () => {
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
     setActiveCategory(null);
   };
 
   const handleCategoryClick = (catId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (activeCategory === catId) {
-      setActiveCategory(null);
-    } else {
-      if (closeTimerRef.current) {
-        clearTimeout(closeTimerRef.current);
-        closeTimerRef.current = null;
+    
+    // On touchscreens (which don't support hover:hover), click should toggle the menu open/closed
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      if (activeCategory === catId) {
+        setActiveCategory(null);
+      } else {
+        if (closeTimerRef.current) {
+          clearTimeout(closeTimerRef.current);
+          closeTimerRef.current = null;
+        }
+        setActiveCategory(catId);
       }
-      setActiveCategory(catId);
+    } else {
+      // On desktop mouse viewports, hover already controls open/close. 
+      // If clicked, we toggle the state or keep it open without flicker
+      if (activeCategory === catId) {
+        setActiveCategory(null);
+      } else {
+        setActiveCategory(catId);
+      }
     }
   };
 
