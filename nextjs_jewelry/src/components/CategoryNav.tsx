@@ -195,20 +195,34 @@ const CATEGORIES: Category[] = [
 
 function getSubcategoryIcon(name: string): string {
   const n = name.toLowerCase();
-  if (n.includes('earring')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwe68efad0/header-mega-menu/thumbnail-icons/earrings.png';
-  if (n.includes('pendant')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwc79b9417/header-mega-menu/thumbnail-icons/pendants.png';
-  if (n.includes('ring')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwbcf9062f/header-mega-menu/thumbnail-icons/finger-rings.png';
-  if (n.includes('mangalsutra')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw98f79ed1/header-mega-menu/thumbnail-icons/mangalsutra.png';
-  if (n.includes('chain')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw7856550b/header-mega-menu/thumbnail-icons/chains.png';
-  if (n.includes('nose')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwde146ca9/header-mega-menu/thumbnail-icons/nosepin.png';
-  if (n.includes('necklace')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw3a28df88/header-mega-menu/thumbnail-icons/necklaces.png';
-  if (n.includes('bangle')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwb27d2fef/header-mega-menu/thumbnail-icons/bangles.png';
-  if (n.includes('bracelet')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw93502493/header-mega-menu/thumbnail-icons/bracelets.png';
-  if (n.includes('gold')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw907d8ad4/header-mega-menu/thumbnail-icons/gold-all.png';
-  if (n.includes('diamond')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw7a8efad0/header-mega-menu/thumbnail-icons/diamond-all.png';
-  if (n.includes('rivaah')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw93502493/header-mega-menu/thumbnail-icons/rivaah.png';
-  if (n.includes('gift')) return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dwde146ca9/header-mega-menu/thumbnail-icons/gifting.png';
-  return 'https://www.aura.co.in/on/demandware.static/-/Sites-Aura-site-catalog/default/dw3bfde98b/header-mega-menu/thumbnail-icons/more.png';
+  
+  // Dailywear subcategories
+  if (n.includes('dailywear chains')) return '/tanishq/dailywear-chains.png';
+  if (n.includes('dailywear earrings')) return '/tanishq/dailywear-earrings.png';
+  if (n.includes('dailywear rings')) return '/tanishq/dailywear-rings.png';
+  if (n.includes('dailywear mangalsutra')) return '/tanishq/dailywear-mangalsutra.png';
+  if (n.includes('dailywear pendants')) return '/tanishq/dailywear-pendant.png';
+  if (n.includes('dailywear jewellery')) return '/tanishq/dailywear-jewellery.png';
+  
+  // Standard categories
+  if (n.includes('earring')) return '/tanishq/earrings.png';
+  if (n.includes('necklace set')) return '/tanishq/necklace-set.png';
+  if (n.includes('necklace')) return '/tanishq/necklaces.png';
+  if (n.includes('pendant')) return '/tanishq/pendants.png';
+  if (n.includes('ring')) return '/tanishq/finger-rings.png';
+  if (n.includes('mangalsutra')) return '/tanishq/mangalsutra.png';
+  if (n.includes('chain')) return '/tanishq/chains.png';
+  if (n.includes('nose')) return '/tanishq/nosepin.png';
+  if (n.includes('bangle')) return '/tanishq/bangles.png';
+  if (n.includes('bracelet')) return '/tanishq/bracelets.png';
+  
+  // Theme highlights
+  if (n.includes('gold')) return '/tanishq/gold-l1.svg';
+  if (n.includes('diamond')) return '/tanishq/diamond-l1.svg';
+  if (n.includes('rivaah')) return '/tanishq/wedding-l1.svg';
+  if (n.includes('gift')) return '/tanishq/gifting-l1.svg';
+  
+  return '/tanishq/all-jewellery-l3.png';
 }
 
 export default function CategoryNav({ isTransparent = false }: CategoryNavProps) {
