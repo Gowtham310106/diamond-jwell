@@ -236,7 +236,7 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
         isTransparent 
           ? 'fixed top-[88px] sm:top-[98px] left-0 z-[1999] bg-transparent' 
           : 'relative bg-white border-b border-[#e5dcd3]'
-      }`}
+      } ${isTransparent ? 'is-transparent' : 'is-scrolled'}`}
       onMouseLeave={() => setActiveCategory(null)}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 relative">

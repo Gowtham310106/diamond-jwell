@@ -350,17 +350,41 @@
 .megamenu-group .cat-circle-item:hover .cat-circle-item__img img {
   transform: scale(1.1) !important;
 }
-.megamenu-group .cat-circle-item:hover .cat-circle-item__label {
+/* State-Specific Style Customizations */
+
+/* Transparent Mode styling (Default state floating over hero videos) */
+.megamenu-group.is-transparent .cat-circle-item__label {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45) !important;
+}
+.megamenu-group.is-transparent .cat-circle-item__ring {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+.megamenu-group.is-transparent .cat-circle-item:hover .cat-circle-item__label,
+.megamenu-group.is-transparent .cat-circle-item--active .cat-circle-item__label {
+  color: #0EA5E9 !important;
+}
+.megamenu-group.is-transparent .cat-circle-item:hover .cat-circle-item__ring,
+.megamenu-group.is-transparent .cat-circle-item--active .cat-circle-item__ring {
+  border-color: #0EA5E9 !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.3) !important;
+}
+
+/* Scrolled Mode styling (Active state on solid white navbar background) */
+.megamenu-group.is-scrolled .cat-circle-item__label {
   color: #0F172A !important;
 }
-/* Selected State */
-.megamenu-group .cat-circle-item--active .cat-circle-item__ring {
-  border-color: #0F172A !important;
-  border-width: 1.5px !important;
-  box-shadow: 0 0 10px rgba(15,23,42,0.15) !important;
+.megamenu-group.is-scrolled .cat-circle-item__ring {
+  border-color: rgba(15, 23, 42, 0.15) !important;
 }
-.megamenu-group .cat-circle-item--active .cat-circle-item__label {
-  color: #0F172A !important;
+.megamenu-group.is-scrolled .cat-circle-item:hover .cat-circle-item__label,
+.megamenu-group.is-scrolled .cat-circle-item--active .cat-circle-item__label {
+  color: #0EA5E9 !important;
+}
+.megamenu-group.is-scrolled .cat-circle-item:hover .cat-circle-item__ring,
+.megamenu-group.is-scrolled .cat-circle-item--active .cat-circle-item__ring {
+  border-color: #0EA5E9 !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.25) !important;
 }
 
 /* Reposition Megamenu Dropdown cleanly under circular nav bar */
