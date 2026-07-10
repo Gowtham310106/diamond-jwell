@@ -259,6 +259,19 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
     setActiveCategory(null);
   };
 
+  const handleCategoryClick = (catId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeCategory === catId) {
+      setActiveCategory(null);
+    } else {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+      setActiveCategory(catId);
+    }
+  };
+
   // Clean up timer on unmount
   useEffect(() => {
     return () => {
@@ -293,7 +306,10 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
               onMouseEnter={() => handleMouseEnter(cat.id)}
               onMouseLeave={handleMouseLeave}
             >
-              <div className="circle-trigger">
+              <div 
+                className="circle-trigger cursor-pointer"
+                onClick={(e) => handleCategoryClick(cat.id, e)}
+              >
                 {/* 3D Concentric Ring Wrapper */}
                 <div className="cat-circle-item__ring">
                   <div className="cat-circle-item__img">
@@ -320,6 +336,7 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
             className="absolute top-full left-0 right-0 w-full pt-1.5 z-[2100] animate-fade-in secondlevel-menu px-4 sm:px-6 lg:px-8"
             onMouseEnter={handleDropdownMouseEnter}
             onMouseLeave={handleDropdownMouseLeave}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-white border border-[#e5dcd3] shadow-[0_20px_50px_rgba(48,7,8,0.15)] rounded-2xl overflow-hidden flex flex-col md:flex-row min-h-[380px]">
               
