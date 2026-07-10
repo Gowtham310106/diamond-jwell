@@ -6,12 +6,12 @@ interface CategoryNavProps {
   isTransparent?: boolean;
 }
 
-interface Subcategory {
+export interface Subcategory {
   name: string;
   link: string;
 }
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   image: string;
@@ -21,7 +21,7 @@ interface Category {
   bannerLink: string;
 }
 
-const CATEGORIES: Category[] = [
+export const CATEGORIES: Category[] = [
   {
     id: 'all',
     name: 'All Jewellery',
