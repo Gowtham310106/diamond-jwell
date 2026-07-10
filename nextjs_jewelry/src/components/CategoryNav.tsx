@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface CategoryNavProps {
   isTransparent?: boolean;
@@ -227,8 +227,44 @@ function getSubcategoryIcon(name: string): string {
 
 export default function CategoryNav({ isTransparent = false }: CategoryNavProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const activeCatData = CATEGORIES.find(c => c.id === activeCategory);
+
+  const handleMouseEnter = (catId: string) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setActiveCategory(catId);
+  };
+
+  const handleMouseLeave = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = setTimeout(() => {
+      setActiveCategory(null);
+    }, 150);
+  };
+
+  const handleDropdownMouseEnter = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const handleDropdownMouseLeave = () => {
+    setActiveCategory(null);
+  };
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   return (
     <div 
@@ -237,7 +273,13 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
           ? 'fixed top-[88px] sm:top-[98px] left-0 z-[1999] bg-transparent' 
           : 'relative bg-white border-b border-[#e5dcd3]'
       } ${isTransparent ? 'is-transparent' : 'is-scrolled'}`}
-      onMouseLeave={() => setActiveCategory(null)}
+      onMouseLeave={() => {
+        if (closeTimerRef.current) {
+          clearTimeout(closeTimerRef.current);
+          closeTimerRef.current = null;
+        }
+        setActiveCategory(null);
+      }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 relative">
         
@@ -247,7 +289,8 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
             <div
               key={cat.id}
               className={`cat-circle-item group ${activeCategory === cat.id ? 'cat-circle-item--active' : ''}`}
-              onMouseEnter={() => setActiveCategory(cat.id)}
+              onMouseEnter={() => handleMouseEnter(cat.id)}
+              onMouseLeave={handleMouseLeave}
             >
               <div className="circle-trigger">
                 {/* 3D Concentric Ring Wrapper */}
@@ -272,7 +315,11 @@ export default function CategoryNav({ isTransparent = false }: CategoryNavProps)
 
         {/* Full-width Mega-Menu Dropdown Panel aligned exactly to max-w-7xl container bounds */}
         {activeCategory && activeCatData && (
-          <div className="absolute top-full left-0 right-0 w-full pt-1.5 z-[2100] animate-fade-in secondlevel-menu px-4 sm:px-6 lg:px-8">
+          <div 
+            className="absolute top-full left-0 right-0 w-full pt-1.5 z-[2100] animate-fade-in secondlevel-menu px-4 sm:px-6 lg:px-8"
+            onMouseEnter={handleDropdownMouseEnter}
+            onMouseLeave={handleDropdownMouseLeave}
+          >
             <div className="bg-white border border-[#e5dcd3] shadow-[0_20px_50px_rgba(48,7,8,0.15)] rounded-2xl overflow-hidden flex flex-col md:flex-row min-h-[380px]">
               
               {/* Left Side: Columns of Subcategories (with miniature thumbnail icons) */}
