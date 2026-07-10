@@ -21,6 +21,7 @@ const storyCards: StoryCard[] = [
   },
   {
     image: '/tanishq/ring-3-4-26.jpg',
+    video: '/Vertical_macro_close_up_of_so.mp4',
     title: 'Ring styling for every...',
     productName: 'Everlasting Shine Diamond Finger Ring',
     productThumb: '/tanishq/ring-3-4-26.jpg',
