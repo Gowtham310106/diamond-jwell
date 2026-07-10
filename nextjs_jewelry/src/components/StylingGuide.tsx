@@ -8,11 +8,13 @@ interface StoryCard {
   title: string;
   productName: string;
   productThumb: string;
+  video?: string;
 }
 
 const storyCards: StoryCard[] = [
   {
     image: '/tanishq/earrings-3-4-26.jpg',
+    video: '/Close_up_vertical_shot_of_a_m.mp4',
     title: 'Your earring sparkle, e...',
     productName: 'Dazzling Teardrop Diamond Drop Earrings',
     productThumb: '/tanishq/earrings-3-4-26.jpg',
@@ -169,14 +171,25 @@ export default function StylingGuide() {
                       : '0 8px 25px rgba(0,0,0,0.15)',
                   }}
                 >
-                  {/* Story card background image */}
+                  {/* Story card background image or video */}
                   <div className="relative w-full h-full">
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                    />
+                    {card.video ? (
+                      <video
+                        src={card.video}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
+                    )}
 
                     {/* Top gradient overlay with title */}
                     <div
