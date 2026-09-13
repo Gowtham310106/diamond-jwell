@@ -6,12 +6,10 @@
  *
  * EYEBROW BUDGET
  * --------------
- * The design system allows one small uppercase micro-label per three sections.
- * The homepage ships nine sections, so the budget is three, spent on:
- *   1. Hero
- *   2. Category bento
- *   3. Heritage
- * Every other section leads with its headline alone. Do not add a fourth.
+ * The design system allows one small uppercase micro-label (.eyebrow) per
+ * three sections. The homepage ships ten sections, so the budget is four and
+ * only one is spent, on Craftsmanship. Every other section leads with its
+ * headline and a plain mono sub-line. Keep it that way.
  */
 
 export const SITE = {

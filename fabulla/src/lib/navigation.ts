@@ -150,6 +150,12 @@ export const NAV_CATEGORIES: NavCategory[] = [
 export type IntroScreen = {
   kind: "video" | "image";
   src: string;
+  /**
+   * Still shown before the clip paints, and left standing if the clip cannot
+   * be fetched at all. Without it a failed video is a black rectangle with
+   * floating text, so every video screen must carry one.
+   */
+  poster?: string;
   title: string;
   subtitle: string;
 };
@@ -158,18 +164,21 @@ export const INTRO_SCREENS: IntroScreen[] = [
   {
     kind: "video",
     src: "/video/intro-solitaire.mp4",
+    poster: ART.halo,
     title: "Fabulla",
     subtitle: "Diamonds crafted beyond compare",
   },
   {
     kind: "video",
     src: "/video/intro-couture.mp4",
+    poster: ART.solitaire,
     title: "The Diamond Edit",
     subtitle: "Natural and lab-grown, certified either way",
   },
   {
     kind: "video",
     src: "/video/intro-bench.mp4",
+    poster: ART.bench,
     title: "At the Bench",
     subtitle: "Set and finished by hand in Chicago",
   },

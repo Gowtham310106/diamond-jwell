@@ -1,5 +1,5 @@
 /**
- * Instagram Highlights rail.
+ * Instagram Highlights.
  *
  * ---------------------------------------------------------------------------
  * HOW TO DROP IN THE REAL CLIPS
@@ -21,10 +21,10 @@
  *    Target under ~1.5MB per clip.
  *
  * 3. Save to /public/highlights/<id>.mp4 and /public/highlights/<id>.jpg,
- *    then set `video` and `poster` below. Nothing else changes: the component
+ *    then set `video` and `cover` below. Nothing else changes: the component
  *    already handles both states.
  *
- * Until then `video` stays null and the rail renders the still cover with the
+ * Until then `video` stays null and each card renders the still cover with the
  * play affordance suppressed. No placeholder clips are wired in.
  * ---------------------------------------------------------------------------
  */

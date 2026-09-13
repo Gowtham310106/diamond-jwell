@@ -115,9 +115,13 @@ function Media({
       muted
       loop
       playsInline
+      // The poster paints immediately and stays if the clip never arrives, so
+      // a slow connection or a missing asset degrades to a still rather than
+      // to a black rectangle with floating text.
+      poster={screen.poster}
       preload={priority ? "auto" : "metadata"}
       aria-hidden="true"
-      className="h-full w-full object-cover"
+      className="h-full w-full bg-ink object-cover"
     >
       <source src={screen.src} type="video/mp4" />
     </video>

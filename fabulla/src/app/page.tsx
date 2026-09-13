@@ -17,7 +17,7 @@ import GoldRule from "@/components/ui/GoldRule";
  *   ScrollIntro ........ four screens that stack and pin, chrome floating over
  *   HeroCarousel ....... banner rotation, the page proper starts here
  *   Collections ........ one tall plate beside two stacked
- *   CategoryBento ...... Bluestone-derived named-area field, 6 tiles, 30 cells
+ *   CategoryBento ...... Bluestone-derived named-area field, 6 tiles, 36 cells
  *   InstagramHighlights  circular tray driving a 3D coverflow
  *   Assurance .......... held heading beside a badge grid
  *   Campaign ........... editorial card beside a product grid
