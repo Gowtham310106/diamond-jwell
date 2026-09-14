@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/site/Header";
-import Footer from "@/components/site/Footer";
-import { SITE } from "@/lib/site";
+import { getSettings } from "@/lib/cms/repo";
 
 /**
  * TYPE SYSTEM
@@ -19,6 +17,9 @@ import { SITE } from "@/lib/site";
  *
  * Geist replaces Inter Tight for body and UI: neutral, modern, and quiet
  * enough that it never competes with the display face.
+ *
+ * This root layout carries only fonts, metadata and the body. The storefront
+ * chrome lives in (site)/layout.tsx and the admin panel in admin/(panel).
  */
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -41,23 +42,23 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: {
-    default: "Fabulla Diamonds Co. | Custom Diamond Jewelry Chicago",
-    template: `%s | ${SITE.name}`,
-  },
-  description: SITE.description,
-  openGraph: {
-    title: "Fabulla Diamonds Co. | Custom Diamond Jewelry Chicago",
-    description: SITE.description,
-    siteName: SITE.name,
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: { card: "summary_large_image" },
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo, brand } = await getSettings();
+  return {
+    metadataBase: new URL(brand.url),
+    title: { default: seo.title, template: `%s | ${brand.name}` },
+    description: seo.description,
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      siteName: brand.name,
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: { card: "summary_large_image" },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -82,11 +83,7 @@ export default function RootLayout({
           <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
       </head>
-      <body className="min-h-dvh bg-canvas text-ink">
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-dvh bg-canvas text-ink">{children}</body>
     </html>
   );
 }

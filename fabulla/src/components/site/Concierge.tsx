@@ -9,13 +9,7 @@ import {
   Phone,
   X,
 } from "@phosphor-icons/react";
-import {
-  CONCIERGE_COPY,
-  LIMITS,
-  type ChatMessage,
-  type ReplySource,
-} from "@/lib/concierge";
-import { CONTACT } from "@/lib/site";
+import { LIMITS, type ChatMessage, type ConciergeCopy, type ReplySource } from "@/lib/concierge";
 
 /**
  * The concierge.
@@ -30,9 +24,9 @@ import { CONTACT } from "@/lib/site";
  *    `<Concierge />` placed after the carousel means "after the slides".
  *    `reveal="immediate"` is for pages that have no slides to clear.
  *
- * 2. Every reply is labelled. A Claude answer and the no-key studio answer read
- *    differently and the panel says which one it got, so nothing is passed off
- *    as more than it is. The disclosure line under the input is permanent.
+ * 2. Every reply is labelled. A Gemini answer and the FAQ-matched studio answer
+ *    read differently and the panel says which one it got, so nothing is
+ *    passed off as more than it is. The disclosure line is permanent.
  *
  * 3. It is a panel, not a modal. It does not trap focus or lock the page
  *    behind a scrim — a visitor mid-question should still be able to scroll the
@@ -41,6 +35,8 @@ import { CONTACT } from "@/lib/site";
  */
 
 type Props = {
+  /** Copy and contact details, from the CMS via the page. */
+  copy: ConciergeCopy;
   /**
    * "after-slides" waits until the sentinel at this component's position has
    * scrolled out of the top of the viewport. "immediate" shows on load.
@@ -54,7 +50,9 @@ const PANEL =
   "flex h-[min(560px,calc(100svh-7rem))] w-[min(380px,calc(100vw-2rem))] flex-col " +
   "overflow-hidden rounded-3xl border border-line-2 bg-canvas shadow-[0_24px_60px_rgba(15,23,42,0.22)]";
 
-export default function Concierge({ reveal = "after-slides" }: Props) {
+export default function Concierge({ copy, reveal = "after-slides" }: Props) {
+  const CONCIERGE_COPY = copy;
+  const CONTACT = { phone: copy.phone, phoneHref: copy.phoneHref, hours: copy.hours };
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState(reveal === "immediate");
   const [open, setOpen] = useState(false);
@@ -62,6 +60,7 @@ export default function Concierge({ reveal = "after-slides" }: Props) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const sentinel = useRef<HTMLDivElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
@@ -128,14 +127,18 @@ export default function Concierge({ reveal = "after-slides" }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: thread.map(({ role, content }) => ({ role, content })),
+            conversationId,
+            page: window.location.pathname,
           }),
         });
 
         const data = (await response.json()) as {
           reply?: string;
           source?: ReplySource;
+          conversationId?: string;
           error?: string;
         };
+        if (data.conversationId) setConversationId(data.conversationId);
 
         if (!response.ok || !data.reply) {
           setEntries((current) => [
@@ -175,7 +178,7 @@ export default function Concierge({ reveal = "after-slides" }: Props) {
         input.current?.focus();
       }
     },
-    [entries, sending]
+    [entries, sending, conversationId]
   );
 
   return (
@@ -356,7 +359,7 @@ function Bubble({ entry }: { entry: Entry }) {
         {entry.content}
       </p>
       <p className="mt-1.5 pl-1 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-3">
-        {entry.source === "claude" ? "AI concierge" : "Studio answer"}
+        {entry.source === "gemini" ? "AI concierge" : "Studio answer"}
       </p>
     </div>
   );

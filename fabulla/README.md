@@ -1,29 +1,135 @@
 # Fabulla Diamonds Co.
 
-A redesign of [fabulladiamonds.com](https://fabulladiamonds.com), built as a
-separate app alongside `nextjs_jewelry`.
+The studio's website and the admin panel that runs it. A redesign of
+[fabulladiamonds.com](https://fabulladiamonds.com), built alongside the
+`nextjs_jewelry` reference.
 
-Next.js 16.2.10 (App Router, Turbopack) · React 19 · Tailwind v4 · Motion ·
-Phosphor Icons.
+Next.js 16 (App Router, Turbopack) · React 19 · Tailwind v4 · Motion ·
+Phosphor Icons · MongoDB Atlas · Cloudflare R2 · Resend · Google Gemini.
 
 ```bash
-cd fabulla && npm run dev
+cd fabulla && pnpm install && pnpm dev     # site at :3000, admin at /admin/login
 ```
+
+**Setting it up for real** — keys, Vercel, Atlas, R2, Resend, Gemini — is
+walked through step by step in [SETUP.md](./SETUP.md).
 
 ---
 
-## Direction
+## What it is
 
-The homepage follows the **UI/UX language of the `nextjs_jewelry` reference
-build**: cinematic sticky intro, two-tier navbar, circular category nav with a
-full-width mega-menu, banner carousel, gold section rules, the Bluestone-derived
-bento field, and the 3D coverflow.
+Two apps in one Next.js project:
 
-Palette is the reference's cream and gold, with **one substitution**: its
-sky-blue accent (`#0EA5E9`) is replaced by Fabulla's own dusty rose
-(`#DDA3A3`). Blue fights gold in a jewelry system, and the rose is the client's
-actual brand colour, so the page reads as the reference without reading as a
-clone of the brand that reference was cloned from.
+| Path | What |
+|---|---|
+| `/` `/products` `/products/[slug]` `/custom` `/about` `/faq` `/contact` | The storefront. Every word and image comes from the CMS. |
+| `/admin` | The studio's panel. Sign in required. |
+| `/api/chat` `/api/enquiries` | Public endpoints: the concierge, the contact form. |
+| `/api/admin/*` | Uploads, media registry, AI images. Session-gated. |
+
+### The admin panel
+
+- **Products** — every field a card or page shows: photos (drag-order, first
+  is the cover), video, price / compare-at / note, metal, stone, carat, specs,
+  badges (New, Best seller, Sale, Custom), featured, tags, stock, draft or
+  published. Duplicate, delete, publish from the list.
+- **Categories** — the header circles, the homepage tiles, the filters; each
+  with its own menu links and drop-down banner.
+- **Collections** — curated edits ("Iced Out", "Under $5,000"); featured ones
+  get a plate on the homepage, all are filters.
+- **Media** — library of every upload, alt text, copy URL. Uploads go straight
+  to Cloudflare R2 from the browser.
+- **Homepage** — hero slides (image *or* video, with poster), which sections
+  show and in what order, section headings, campaign card, Instagram
+  highlights, custom-process steps, page plates.
+- **Settings** — brand, contact (phone, email, Instagram, WhatsApp, address,
+  hours), notice bar, the numbers quoted in copy, assurance badges,
+  testimonials, financing banner, chatbot copy, enquiry-email routing, SEO.
+- **FAQs** — questions grouped by topic; each can show on the site and/or
+  teach the chatbot.
+- **Inbox** — every enquiry, appointment and quote request with status
+  (new / contacted / won / closed), internal notes, reply-by-email, and
+  whether the notification email went out.
+- **Chat logs** — what visitors asked; conversations the bot had to hand off
+  are flagged, with a one-click "write an FAQ for this".
+- **Team** — add and remove people, change password.
+- **Integrations** — live pings of MongoDB, R2, Resend and Gemini, and a
+  checklist of every environment variable with whether it is set.
+
+### AI, in two places
+
+- **The concierge** (`/api/chat`): Gemini, grounded in a system prompt built
+  at request time from settings, the published catalog and the FAQs. It is
+  told never to invent prices, stock, dates or policy, and to hand anything
+  binding to the phone number. Every reply is labelled "AI concierge" or
+  "Studio answer" (the FAQ-matcher fallback when there is no key or Gemini
+  fails). Conversations are logged for the admin.
+- **Photo variants** (`/api/admin/ai/image`): Gemini's image model takes an
+  existing product photo and returns a cleaner or re-angled version — studio
+  white, black velvet, three-quarter, wide hero — or a custom prompt. The
+  result is saved to the media library beside the original; nothing is
+  replaced without the admin choosing it.
+
+---
+
+## Architecture
+
+```
+src/lib/cms/
+  types.ts     every document type; string _ids, ISO timestamps
+  store.ts     MongoDB when MONGODB_URI is set, else .data/cms.json — same
+               four-method interface, seeded on first read, memoised per request
+  seed.ts      the starting content: catalog, photos, copy, FAQs
+  repo.ts      the queries: settings, catalog with filters/search/sort/paging,
+               inbox, FAQs, chats, team, media; revalidates the site on write
+  forms.ts     FormData helpers for server actions
+src/lib/
+  auth.ts      scrypt passwords, HMAC session cookie (Web Crypto: edge + node)
+  storage.ts   R2 presigned uploads / server writes, local fallback
+  email.ts     Resend
+  ai.ts        Gemini chat + image edit + health ping
+  concierge.ts system prompt and FAQ fallback
+src/proxy.ts   gates /admin and /api/admin on the session cookie
+src/app/
+  (site)/      storefront pages + layout with header/footer
+  admin/(panel)/  admin pages, one folder per entity with actions.ts
+  admin/login/
+  api/
+src/components/
+  site/        header, nav, footer, product card, gallery, form, concierge
+  home/        homepage sections, each fed by props
+  admin/       panel primitives, media picker, list/hero/sections editors
+```
+
+**One query path for both databases.** The store loads a collection whole and
+every filter, search and sort runs in JavaScript. A studio's catalog is a few
+hundred documents; this is faster than a round-trip per facet and it means
+the file store used for local dev behaves identically to Atlas.
+
+**Caching.** Public pages are ISR (`revalidate = 60`) and every admin write
+calls `revalidatePath("/", "layout")`, so edits appear immediately and idle
+traffic is served from cache.
+
+**Uploads.** The admin asks `/api/admin/uploads/presign` for a signed R2 PUT
+URL and uploads from the browser, then registers the object. Without R2 the
+same control falls back to a multipart upload into `.data/uploads`.
+
+---
+
+## Design
+
+### Direction
+
+The homepage follows the UI/UX language of the `nextjs_jewelry` reference
+build: two-tier navbar, circular category nav with a full-width mega-menu,
+banner carousel with image or video slides, gold section rules, the
+Bluestone-derived bento field, the 3D coverflow. Product showcase rows and
+the filter sidebar follow the icebox.com pattern — horizontal rails of cards
+on the homepage, faceted filters (category, collection, price band, metal,
+stone, availability) with sort and search on the catalog.
+
+Palette is the reference's cream and gold, with one substitution: its
+sky-blue accent is replaced by Fabulla's own dusty rose (`#DDA3A3`).
 
 ### Locks
 
@@ -37,7 +143,7 @@ clone of the brand that reference was cloned from.
 - **Shape lock:** cards and media 16px, chips and buttons pill, circular nav
   items full.
 - **CTA lock:** one label per intent, defined in `src/lib/site.ts`, reused
-  verbatim in header, hero, campaign and closing sections.
+  verbatim everywhere.
 
 ### Measured contrast (all pass WCAG AA)
 
@@ -49,209 +155,29 @@ clone of the brand that reference was cloned from.
 | rose-ink on canvas / canvas-2 / surface | 4.98 / 4.66 / 5.19 |
 | ink on rose (primary button) | 8.37 |
 
-`ink-3` and `rose-ink` are tuned against `--color-canvas-2`, the darkest of the
-three grounds. Values one step lighter cleared AA on the base cream but landed
-at 4.45 and 4.41 on the banded sections.
+### Accessibility and performance
+
+- Every scroll-revealed element carries `data-reveal`, and a `<noscript>`
+  override in `layout.tsx` forces them visible.
+- No `window.addEventListener("scroll")` anywhere; motion collapses under
+  `prefers-reduced-motion`.
+- Mega-menu closes on Escape; hover opens only on real hover devices.
+- Forms: labels above controls, errors below with `role="alert"`, a honeypot
+  instead of a CAPTCHA.
+- The FAQ accordion and the product filters are plain HTML (`<details>`,
+  links), so they work before hydration and every answer is indexable.
+  Product pages ship `Product` JSON-LD; the FAQ page ships `FAQPage`;
+  `sitemap.xml` and `robots.txt` are generated from the catalog.
 
 ---
-
-## Homepage flow
-
-| Section | Layout family |
-|---|---|
-| `ScrollIntro` | four screens that stack and pin, chrome floating over |
-| `HeroCarousel` | banner rotation with arrows and dots |
-| `Collections` | one tall plate beside two stacked |
-| `CategoryBento` | named-area field, 6 tiles across a 6x6 grid |
-| `InstagramHighlights` | circular tray driving a 3D coverflow |
-| `Assurance` | held heading beside a badge grid |
-| `Campaign` | editorial card beside a product grid |
-| `Craftsmanship` | copy and features beside the certificate card |
-| `Testimonials` | three client cards |
-| `ClosingCta` | the one centred moment |
-| `Concierge` | chat launcher pinned bottom-right, revealed once the slides pass |
-
-### What was changed from the reference, and why
-
-1. **No scroll listeners.** The reference drove the intro captions and the
-   navbar state from `window.addEventListener("scroll")`, which fires every
-   frame and re-renders the tree each time. Both now read from Motion's
-   `useScroll` and commit state only on an actual change: four re-renders
-   across 400vh instead of hundreds.
-2. **Chrome collapses.** Keeping all three header tiers expanded costs about
-   180px of viewport forever. The notice strip hides and the category circles
-   shrink to 44px with labels dropped once you scroll, settling at ~110px while
-   the mega-menu stays reachable.
-3. **Bento retuned for six categories.** The reference had sixteen items and a
-   23-row template. A first pass at five rows gave pendants a single row, which
-   rendered as a 104px strip beside a 327px neighbour. The 6x6 template gives
-   every tile at least two rows and keeps widths uneven (664 / 440 / 216).
-4. **Carousel is accessible.** Autoplay pauses on hover and focus and stops
-   under `prefers-reduced-motion`; only the headline block is a link, so the
-   arrows are ordinary buttons rather than `stopPropagation` escapes.
-5. **Mega-menu links resolve.** The reference used `"#"` placeholders
-   throughout. Every entry here points at a real route.
-6. **Reduced motion is honoured.** The intro collapses to a single static
-   screen rather than pinning the viewport for four screen-heights.
-7. **Dead assets dropped.** The reference's badge SVGs and divider PNG belong
-   to the brand it was cloned from; those are Phosphor glyphs and a CSS rule
-   here.
-
----
-
-## Routes
-
-Slugs are frozen from the live site so inbound links and search ranking survive.
-
-`/` · `/products` (with `?category=`) · `/products/[slug]` (all six
-prerendered) · `/custom` · `/about` · `/contact`
-
----
-
-## Instagram highlights
-
-`src/components/home/InstagramHighlights.tsx` handles both data states. While
-`video` is `null` a card is a still that opens the profile and shows no play
-affordance, because promising a clip that is not there is worse than not
-offering one. Set `video` and the same card becomes a player, no markup change.
-
-**No placeholder clips are wired in.** The four macro clips in `public/video`
-are used only by the cinematic intro.
-
-To fill it in, see the header comment in `src/lib/instagram.ts`. In short:
-
-1. The client exports their own media: Instagram → Settings → Accounts Center →
-   Download your information → tick Stories and Story highlights → JSON, High
-   media quality. Original quality, no watermark, within ToS because they own
-   the account. Instagram's web profile is behind a login wall, so this export
-   is the only clean route.
-2. Normalise each clip:
-   ```bash
-   ffmpeg -i raw.mp4 -an -vf "scale=720:-2" -c:v libx264 -crf 25 -preset slow -pix_fmt yuv420p -movflags +faststart web.mp4
-   ```
-3. Save to `public/highlights/` and set `video` and `cover` in
-   `src/lib/instagram.ts`.
-
-Confirm the highlight titles and their order against the live profile before
-launch; the current titles are a best guess at the tray.
-
----
-
-## Image assets
-
-All photography lives in `public/images` and is wired through three exports in
-`src/lib/products.ts`, so a swap is a one-line change in one file:
-
-| Export | Drives |
-|---|---|
-| `PRODUCTS[].image` | product cards, product pages, the Campaign grid |
-| `CATEGORY_ART` | nav circles, mega-menu banners, the category bento |
-| `ART` | intro screens, hero banners, Collections, Craftsmanship, About, Custom |
-
-`HIGHLIGHTS[].cover` in `src/lib/instagram.ts` points at the same folder.
-
-Placement rules that the current mapping follows, and that a swap should keep:
-
-- **Dark-ground frames carry overlaid type.** The intro captions sit on a
-  `bg-black/30` scrim and nothing else, so every intro poster is a black-ground
-  shot. The hero carousel has its own heavy left scrim, which is why the
-  white-ground halo frame can run there and nowhere else.
-- **`orientation` matches the file's real aspect** (`landscape` for the halo
-  frame, `square` for the tennis-bracelet case, `portrait` for the rest), so
-  the product grid crops to the card instead of cropping the piece.
-- **The custom Interstate piece is cropped to the pendant.** The supplied
-  frame has another jeweller's logo across the backdrop, so the shipped file
-  is a crop of the piece alone. That leaves it 345x301, small enough that it
-  runs as a highlight tile only, never full-bleed. Worth a reshoot against
-  Fabulla's own backdrop; the client still holds the uncropped original.
-
-Two gaps, both deliberate and both visible in the code:
-
-1. **Earrings have no photograph.** `CATEGORY_ART.Earrings` is the one
-   remaining Unsplash stand-in, and the `images.unsplash.com` entry in
-   `next.config.ts` exists only for it. Both go away together.
-2. **One loose-stone frame is doing two jobs.** `ART.hero` and `ART.surat` are
-   the same file, because it is the only supplied shot with loose stones in it
-   and both the opener and the sourcing story need them.
-
----
-
-## AI concierge
-
-A chat panel that answers visitors from this site's own data. The launcher is
-pinned bottom-right and **does not exist until the opening slides have scrolled
-past**: `<Concierge />` renders a sentinel where it sits in `page.tsx` (directly
-after `HeroCarousel`) and only reveals itself once that point clears the
-viewport. The intro and the banner carousel are this page's one uninterrupted
-stretch; a chat bubble floating over them undoes it. To run it on a page with no
-slides to clear, mount `<Concierge reveal="immediate" />`.
-
-### The two answer paths
-
-`POST /api/chat` takes the thread and returns `{ reply, source }`. The panel
-labels every answer with which path produced it, so nothing is passed off as
-more than it is:
-
-| `source` | When | Labelled |
-|---|---|---|
-| `claude` | `ANTHROPIC_API_KEY` is set | AI concierge |
-| `studio` | No key, or the API call failed | Studio answer |
-
-The fallback is a small keyword matcher over the same facts (`studioAnswer` in
-`src/lib/concierge.ts`). It answers the questions the studio actually gets -
-timelines, budgets, lab-grown vs natural, watch work, the showroom - and hands
-over the phone number when it cannot. It is the honest floor for a deploy with
-no key, not a pretend AI, and an upstream failure degrades into it rather than
-into a dead panel.
-
-### Configuring it
-
-Copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` (on Vercel, the
-same name as a project environment variable). The key is read in
-`src/app/api/chat/route.ts` and nowhere else; it never reaches the client.
-
-Everything the assistant may say is built in `buildSystemPrompt()` from
-`site.ts` and `products.ts` - prices, timelines, contact details and the full
-catalog - so there is one place to change a fact. The prompt forbids inventing
-stock, quotes, delivery dates or policy, and routes anything binding to the
-studio. Visitor text is framed as a customer question, never as instructions.
-
-Two constants worth knowing in the route: `MODEL` (`claude-opus-5`) and `EFFORT`
-(`low` - these are short grounded answers, and a visitor is watching a spinner).
-Requests are throttled per IP in memory, which resets on deploy and is per
-instance; put a real limiter at the edge if this ever takes traffic.
 
 ## Open items for the client
 
-1. **Photography is the client's own, but low-resolution.** Every frame in
-   `public/images` is between 430px and 700px on its long edge, which is fine
-   for cards and nav circles and soft on the full-bleed intro and banners.
-   Re-exports at 2000px+ would lift those slots with no code change: same
-   filenames, same places. Two gaps remain, listed under "Image assets".
-2. **The wordmark is set in type, not the client's logo.** The live mark is a
-   40px JPEG, unusable at scale. Needs the client's sign-off and vector file.
-3. **The enquiry form has no backend.** A validated submit composes a prefilled
-   email. Replace the body of `submit` in `EnquiryForm.tsx`; the loading, sent
-   and error states already exist. (The concierge endpoint is separate and does
-   have a backend - see "AI concierge".)
-4. **The concierge needs a key to be an AI.** Until `ANTHROPIC_API_KEY` is set
-   it answers from the fallback matcher and labels every reply as such. The
-   studio should also read the answers it gives for tone before launch.
-5. **`/track`, `/privacy`, `/terms` are linked but not built.**
-6. **The intro clips are generic macro footage**, carried over from the
-   reference project. They should become real Fabulla footage.
-
----
-
-## Accessibility and performance
-
-- Every scroll-revealed element carries `data-reveal`, and a `<noscript>`
-  override in `layout.tsx` forces them visible. Without it the page ships
-  dozens of elements at `opacity: 0` and is blank when JavaScript is blocked.
-- No `window.addEventListener("scroll")` anywhere.
-- All motion collapses under `prefers-reduced-motion`, in CSS and via
-  `useReducedMotion()`.
-- Mega-menu closes on Escape; hover opens only on real hover devices so a tap
-  cannot strand it open.
-- Form labels sit above their controls, helper text is in the markup, errors
-  render below the field with `role="alert"`.
+1. **Photography is low-resolution.** The shipped frames are 430–700px on the
+   long edge — fine on cards, soft on the hero. Upload re-exports at 2000px+
+   through the admin; or use the AI variant button as a stopgap.
+2. **Earrings has no photograph.** The category still uses a stock stand-in.
+3. **The wordmark is set in type.** Needs the client's vector logo.
+4. **`/privacy` and `/terms` are linked but not built.**
+5. **Read the chatbot's answers for tone before launch**, and write the
+   first ten FAQs — the concierge is only as good as they are.

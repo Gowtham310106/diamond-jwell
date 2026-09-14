@@ -9,13 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.125.0",
+    "@aws-sdk/client-s3": "^3.1131.0",
+    "@aws-sdk/s3-request-presigner": "^3.1131.0",
+    "@google/genai": "^2.22.0",
     "@phosphor-icons/react": "^2.1.7",
     "clsx": "^2.1.1",
+    "mongodb": "^7.6.0",
     "motion": "^12.23.12",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.28.0",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {

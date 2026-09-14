@@ -2,74 +2,74 @@
 
 import { useState } from "react";
 import { CheckCircle, CircleNotch, WarningCircle } from "@phosphor-icons/react";
-import { CONTACT } from "@/lib/site";
+import type { EnquiryKind } from "@/lib/cms/types";
 
 /**
- * Enquiry form.
+ * Enquiry form. Posts to /api/enquiries, which writes the message to the
+ * admin inbox and emails the studio. The three states (sending, sent, error)
+ * are all real: nothing is faked and nothing opens a mail client.
  *
- * There is no backend in this build. Rather than fake a success toast that
- * sends nothing, a validated submit composes a prefilled email to the studio
- * address and hands off to the visitor's mail client, then shows exactly what
- * happened. For a studio that answers every enquiry personally this is a real
- * path, not a stub.
+ * `kind` decides the framing: a plain enquiry, an appointment request (asks
+ * for a preferred date), a quote, or a question about one piece.
  *
- * TO WIRE A REAL ENDPOINT: replace the body of `submit` with a POST to your
- * handler and set status to "sent" on a 2xx, "error" otherwise. The three
- * states below already exist, so nothing else changes.
- *
- * Accessibility: every label sits above its control, helper text is present in
- * the markup, errors render below the field and are announced, and no field
- * uses a placeholder as its label.
+ * Accessibility: every label sits above its control, helper text is present
+ * in the markup, errors render below the field and are announced.
  */
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
 
-const INTENTS = [
-  "A custom piece",
-  "Something from the collection",
-  "Watch work",
-  "Not sure yet",
-];
+const INTENTS = ["A custom piece", "Something from the collection", "Watch work", "A repair or resize", "Not sure yet"];
+const BUDGETS = ["Under $2,500", "$2,500 to $5,000", "$5,000 to $10,000", "Over $10,000", "Rather discuss it"];
 
-const BUDGETS = [
-  "Under $2,500",
-  "$2,500 to $5,000",
-  "$5,000 to $10,000",
-  "Over $10,000",
-  "Rather discuss it",
-];
+const field = "w-full rounded-xl border border-line-2 bg-surface px-4 py-3.5 font-sans text-[14px] text-ink transition-colors duration-300 focus:border-rose focus:outline-none";
+const labelCls = "block font-mono text-[10px] uppercase tracking-[0.2em] text-ink-2";
 
-const field =
-  "w-full rounded-xl border border-line-2 bg-surface px-4 py-3.5 " +
-  "font-sans text-[14px] text-ink transition-colors duration-300 " +
-  "focus:border-rose focus:outline-none";
+const KIND_COPY: Record<EnquiryKind, { heading: string; button: string }> = {
+  enquiry: { heading: "Tell us about the piece", button: "Send enquiry" },
+  appointment: { heading: "Book a showroom visit", button: "Request appointment" },
+  quote: { heading: "Ask for a quote", button: "Request quote" },
+  product: { heading: "Ask about this piece", button: "Send enquiry" },
+};
 
-const labelCls =
-  "block font-mono text-[10px] uppercase tracking-[0.2em] text-ink-2";
-
-export default function EnquiryForm() {
+export default function EnquiryForm({
+  kind = "enquiry",
+  productSlug = "",
+  productName = "",
+  email,
+  responseTime,
+}: {
+  kind?: EnquiryKind;
+  productSlug?: string;
+  productName?: string;
+  email: string;
+  responseTime: string;
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
+  const [failure, setFailure] = useState<string | null>(null);
+  const [mode, setMode] = useState<EnquiryKind>(kind);
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
-    const name = String(data.get("name") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const phone = String(data.get("phone") ?? "").trim();
-    const intent = String(data.get("intent") ?? "");
-    const budget = String(data.get("budget") ?? "");
-    const message = String(data.get("message") ?? "").trim();
+    const payload = {
+      kind: mode,
+      name: String(data.get("name") ?? "").trim(),
+      email: String(data.get("email") ?? "").trim(),
+      phone: String(data.get("phone") ?? "").trim(),
+      intent: String(data.get("intent") ?? ""),
+      budget: String(data.get("budget") ?? ""),
+      preferredDate: String(data.get("preferredDate") ?? ""),
+      message: String(data.get("message") ?? "").trim(),
+      productSlug,
+      website: String(data.get("website") ?? ""),
+    };
 
     const next: Errors = {};
-    if (name.length < 2) next.name = "Please tell us your name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
-      next.email = "That email address does not look right.";
-    if (message.length < 10)
-      next.message = "A sentence or two about the piece helps us answer properly.";
-
+    if (payload.name.length < 2) next.name = "Please tell us your name.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(payload.email)) next.email = "That email address does not look right.";
+    if (payload.message.length < 10) next.message = "A sentence or two helps us answer properly.";
     setErrors(next);
     if (Object.keys(next).length > 0) {
       setStatus("error");
@@ -77,53 +77,37 @@ export default function EnquiryForm() {
     }
 
     setStatus("sending");
-
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      phone && `Phone: ${phone}`,
-      `Looking for: ${intent}`,
-      budget && `Budget: ${budget}`,
-      "",
-      message,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const href = `${CONTACT.emailHref}?subject=${encodeURIComponent(
-      `Enquiry from ${name}`
-    )}&body=${encodeURIComponent(body)}`;
-
-    window.location.href = href;
-    setStatus("sent");
+    setFailure(null);
+    try {
+      const res = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const body = (await res.json()) as { ok?: boolean; errors?: Errors; error?: string };
+      if (res.status === 422 && body.errors) {
+        setErrors(body.errors);
+        setStatus("error");
+        return;
+      }
+      if (!res.ok || !body.ok) throw new Error(body.error || "Something went wrong.");
+      setStatus("sent");
+    } catch (e) {
+      setFailure(e instanceof Error ? e.message : "Something went wrong.");
+      setStatus("error");
+    }
   }
 
   if (status === "sent") {
     return (
-      <div
-        className="rounded-xl border border-line-2 bg-surface p-10"
-        role="status"
-      >
+      <div className="rounded-xl border border-line-2 bg-surface p-10" role="status">
         <CheckCircle size={30} weight="light" className="text-rose-ink" />
-        <h3 className="display mt-6 text-[28px] text-ink">
-          Your email is ready to send
-        </h3>
+        <h3 className="display mt-6 text-[28px] text-ink">{mode === "appointment" ? "Request received" : "Message received"}</h3>
         <p className="mt-4 font-sans text-[14.5px] leading-relaxed text-ink-2">
-          We opened a prefilled message in your mail app. Send it and you will
-          hear back within 24 hours. If nothing opened, write to us directly at{" "}
-          <a
-            href={CONTACT.emailHref}
-            className="text-rose-ink underline underline-offset-4"
-          >
-            {CONTACT.email}
+          A real person reads every message. You will hear back within {responseTime}
+          {mode === "appointment" ? " to confirm a time" : ""}. If it is urgent, write to{" "}
+          <a href={`mailto:${email}`} className="text-rose-ink underline underline-offset-4">
+            {email}
           </a>
           .
         </p>
-        <button
-          type="button"
-          onClick={() => setStatus("idle")}
-          className="mt-8 font-sans text-[11px] uppercase tracking-[0.16em] text-ink-3 transition-colors hover:text-rose-ink"
-        >
+        <button type="button" onClick={() => setStatus("idle")} className="mt-8 font-sans text-[11px] uppercase tracking-[0.16em] text-ink-3 transition-colors hover:text-rose-ink">
           Write another
         </button>
       </div>
@@ -132,148 +116,96 @@ export default function EnquiryForm() {
 
   return (
     <form onSubmit={submit} noValidate className="space-y-7">
-      <div className="grid gap-7 sm:grid-cols-2">
-        <div>
-          <label htmlFor="name" className={labelCls}>
-            Your name
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? "name-error" : undefined}
-            className={`${field} mt-3 ${errors.name ? "border-rose" : ""}`}
-          />
-          {errors.name && <FieldError id="name-error">{errors.name}</FieldError>}
+      <div>
+        <p className={labelCls}>I would like to</p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {(
+            [
+              ["enquiry", "Ask a question"],
+              ["appointment", "Book a visit"],
+              ["quote", "Get a quote"],
+            ] as [EnquiryKind, string][]
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setMode(k)}
+              aria-pressed={mode === k || (k === "enquiry" && mode === "product")}
+              className={`rounded-full border px-4 py-2 font-sans text-[11px] uppercase tracking-[0.14em] transition-colors ${mode === k || (k === "enquiry" && mode === "product") ? "border-rose bg-rose text-ink" : "border-line-2 text-ink-2 hover:border-rose"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-
-        <div>
-          <label htmlFor="email" className={labelCls}>
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            className={`${field} mt-3 ${errors.email ? "border-rose" : ""}`}
-          />
-          {errors.email && (
-            <FieldError id="email-error">{errors.email}</FieldError>
-          )}
-        </div>
+        {productName && <p className="mt-3 font-sans text-[13px] text-ink-2">About: <span className="text-ink">{productName}</span></p>}
       </div>
 
+      <h3 className="display text-[24px] text-ink">{KIND_COPY[mode].heading}</h3>
+
       <div className="grid gap-7 sm:grid-cols-2">
         <div>
-          <label htmlFor="phone" className={labelCls}>
-            Phone
-          </label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            aria-describedby="phone-help"
-            className={`${field} mt-3`}
-          />
-          <p id="phone-help" className="mt-2.5 font-sans text-[12px] text-ink-3">
-            Optional. Faster for custom work.
-          </p>
+          <label htmlFor="name" className={labelCls}>Your name</label>
+          <input id="name" name="name" autoComplete="name" className={`${field} mt-2`} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "name-error" : undefined} />
+          {errors.name && <p id="name-error" role="alert" className="mt-2 font-sans text-[12px] text-rose-ink">{errors.name}</p>}
         </div>
-
         <div>
-          <label htmlFor="intent" className={labelCls}>
-            What are you after
-          </label>
-          <select
-            id="intent"
-            name="intent"
-            defaultValue={INTENTS[0]}
-            className={`${field} mt-3`}
-          >
-            {INTENTS.map((i) => (
-              <option key={i} value={i} className="bg-surface">
-                {i}
-              </option>
+          <label htmlFor="email" className={labelCls}>Email</label>
+          <input id="email" name="email" type="email" autoComplete="email" className={`${field} mt-2`} aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "email-error" : undefined} />
+          {errors.email && <p id="email-error" role="alert" className="mt-2 font-sans text-[12px] text-rose-ink">{errors.email}</p>}
+        </div>
+        <div>
+          <label htmlFor="phone" className={labelCls}>Phone <span className="normal-case tracking-normal text-ink-3">(optional)</span></label>
+          <input id="phone" name="phone" type="tel" autoComplete="tel" className={`${field} mt-2`} />
+        </div>
+        {mode === "appointment" ? (
+          <div>
+            <label htmlFor="preferredDate" className={labelCls}>Preferred day</label>
+            <input id="preferredDate" name="preferredDate" type="date" className={`${field} mt-2`} />
+          </div>
+        ) : (
+          <div>
+            <label htmlFor="intent" className={labelCls}>Looking for</label>
+            <select id="intent" name="intent" className={`${field} mt-2`} defaultValue={mode === "product" ? INTENTS[1] : INTENTS[0]}>
+              {INTENTS.map((i) => (
+                <option key={i}>{i}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="sm:col-span-2">
+          <label htmlFor="budget" className={labelCls}>Budget <span className="normal-case tracking-normal text-ink-3">(helps us design around it)</span></label>
+          <select id="budget" name="budget" className={`${field} mt-2`} defaultValue="">
+            <option value="">Prefer not to say</option>
+            {BUDGETS.map((b) => (
+              <option key={b}>{b}</option>
             ))}
           </select>
         </div>
       </div>
 
       <div>
-        <label htmlFor="budget" className={labelCls}>
-          Budget
-        </label>
-        <select
-          id="budget"
-          name="budget"
-          defaultValue={BUDGETS[4]}
-          aria-describedby="budget-help"
-          className={`${field} mt-3`}
-        >
-          {BUDGETS.map((b) => (
-            <option key={b} value={b} className="bg-surface">
-              {b}
-            </option>
-          ))}
-        </select>
-        <p id="budget-help" className="mt-2.5 font-sans text-[12px] text-ink-3">
-          A range is enough. It tells us which stones to look at.
+        <label htmlFor="message" className={labelCls}>{mode === "appointment" ? "What would you like to see?" : "About the piece"}</label>
+        <textarea id="message" name="message" rows={5} className={`${field} mt-2`} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "message-error" : undefined} defaultValue={productName ? `I'm interested in the ${productName}. ` : ""} />
+        {errors.message && <p id="message-error" role="alert" className="mt-2 font-sans text-[12px] text-rose-ink">{errors.message}</p>}
+      </div>
+
+      {/* Honeypot. Hidden from people, filled by bots. */}
+      <div className="absolute -left-[9999px] top-0" aria-hidden="true">
+        <label htmlFor="website">Website</label>
+        <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
+
+      {failure && (
+        <p role="alert" className="flex items-start gap-2 rounded-xl border border-rose bg-rose-soft px-4 py-3 font-sans text-[13px] text-ink">
+          <WarningCircle size={16} className="mt-0.5 shrink-0 text-rose-ink" />
+          {failure}
         </p>
-      </div>
+      )}
 
-      <div>
-        <label htmlFor="message" className={labelCls}>
-          What are you picturing
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          rows={5}
-          aria-invalid={Boolean(errors.message)}
-          aria-describedby={errors.message ? "message-error" : "message-help"}
-          className={`${field} mt-3 resize-y ${errors.message ? "border-rose" : ""}`}
-        />
-        {errors.message ? (
-          <FieldError id="message-error">{errors.message}</FieldError>
-        ) : (
-          <p
-            id="message-help"
-            className="mt-2.5 font-sans text-[12px] text-ink-3"
-          >
-            A stone shape, a photo you saw, a deadline. Anything at all.
-          </p>
-        )}
-      </div>
-
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-all duration-300 hover:bg-rose-soft active:translate-y-[1px] disabled:opacity-60"
-      >
-        {status === "sending" && (
-          <CircleNotch size={14} weight="bold" className="animate-spin" />
-        )}
-        {status === "sending" ? "Preparing" : "Send enquiry"}
+      <button type="submit" disabled={status === "sending"} className="inline-flex items-center gap-2.5 rounded-full bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors hover:bg-rose-soft disabled:opacity-50">
+        {status === "sending" && <CircleNotch size={14} className="animate-spin" />}
+        {KIND_COPY[mode].button}
       </button>
     </form>
-  );
-}
-
-function FieldError({ id, children }: { id: string; children: string }) {
-  return (
-    <p
-      id={id}
-      role="alert"
-      className="mt-2.5 flex items-center gap-2 font-sans text-[12px] text-rose-ink"
-    >
-      <WarningCircle size={13} weight="light" />
-      {children}
-    </p>
   );
 }

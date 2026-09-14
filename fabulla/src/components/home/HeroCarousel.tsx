@@ -5,48 +5,46 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CaretLeft, CaretRight, ArrowRight } from "@phosphor-icons/react";
-import { BANNERS } from "@/lib/navigation";
+import type { HeroSlide } from "@/lib/cms/types";
 
 /**
- * Banner carousel, following the reference build's hero: full-bleed art, an
- * editorial block on the left, arrows and dots.
+ * Hero carousel: full-bleed art, an editorial block on the left, arrows and
+ * dots. Slides come from the admin panel and can be a still or a muted,
+ * looping MP4 with a poster.
  *
- * Differences from the reference, all correctness rather than taste:
- *  - The reference made the entire banner one giant click target with the
- *    arrows nested inside it, relying on stopPropagation. Here only the
- *    headline block is a link, so the arrows are ordinary buttons.
- *  - Autoplay pauses on hover and on focus, and stops entirely under
+ *  - Only the headline block is a link, so the arrows are ordinary buttons.
+ *  - Autoplay pauses on hover and on focus, and stops under
  *    prefers-reduced-motion, instead of advancing under the reader.
  *  - The slide region is announced as a group with live-region politeness so
  *    screen readers are not spammed on every rotation.
  */
 const INTERVAL = 6000;
 
-export default function HeroCarousel() {
+export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduce = useReducedMotion();
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const go = useCallback((dir: 1 | -1) => {
-    setIndex((i) => (i + dir + BANNERS.length) % BANNERS.length);
-  }, []);
+  const count = slides.length;
+  const go = useCallback((dir: 1 | -1) => setIndex((i) => (i + dir + count) % count), [count]);
 
   useEffect(() => {
-    if (reduce || paused) return;
+    if (reduce || paused || count < 2) return;
     timer.current = setInterval(() => go(1), INTERVAL);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [go, paused, reduce]);
+  }, [go, paused, reduce, count]);
 
-  const slide = BANNERS[index];
+  if (count === 0) return null;
+  const slide = slides[index] ?? slides[0];
 
   return (
     <section
-      className="relative h-[440px] w-full overflow-hidden border-b border-line bg-ink sm:h-[520px] lg:h-[580px]"
+      className="relative h-[440px] w-full overflow-hidden border-b border-line bg-ink sm:h-[520px] lg:h-[600px]"
       aria-roledescription="carousel"
-      aria-label="Featured collections"
+      aria-label="Featured"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -54,22 +52,30 @@ export default function HeroCarousel() {
     >
       <AnimatePresence initial={false} mode="sync">
         <motion.div
-          key={index}
+          key={slide.id}
           className="absolute inset-0"
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: reduce ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Image
-            src={slide.image}
-            alt=""
-            fill
-            priority={index === 0}
-            quality={90}
-            sizes="100vw"
-            className="object-cover"
-          />
+          {slide.kind === "video" && slide.src ? (
+            <video
+              key={slide.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={slide.poster || undefined}
+              preload={index === 0 ? "auto" : "metadata"}
+              aria-hidden="true"
+              className="h-full w-full object-cover"
+            >
+              <source src={slide.src} />
+            </video>
+          ) : slide.src ? (
+            <Image src={slide.src} alt="" fill priority={index === 0} quality={90} sizes="100vw" className="object-cover" />
+          ) : null}
           {/* Two scrims: horizontal for the type column, vertical to seat the
               art against the section edge. */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
@@ -80,7 +86,7 @@ export default function HeroCarousel() {
       <div className="relative mx-auto flex h-full max-w-[1400px] flex-col justify-center px-5 sm:px-8 lg:px-10">
         <AnimatePresence mode="wait">
           <motion.div
-            key={index}
+            key={slide.id}
             className="max-w-xl"
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,66 +94,45 @@ export default function HeroCarousel() {
             transition={{ duration: reduce ? 0 : 0.65, ease: [0.16, 1, 0.3, 1] }}
             aria-live="polite"
           >
-            <span className="inline-block rounded-full border border-white/25 bg-white/10 px-3.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.24em] text-white backdrop-blur-sm">
-              {slide.eyebrow}
-            </span>
-
-            <h2 className="display mt-5 text-[clamp(2.25rem,5.5vw,4rem)] text-white drop-shadow">
-              {slide.title}
-            </h2>
-
-            <p className="mt-4 max-w-md font-sans text-[14px] leading-relaxed text-white/85">
-              {slide.description}
-            </p>
-
-            <Link
-              href={slide.href}
-              className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors duration-300 hover:bg-rose-soft"
-            >
-              Explore collection
-              <ArrowRight
-                size={13}
-                weight="light"
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
+            {slide.eyebrow && (
+              <span className="inline-block rounded-full border border-white/25 bg-white/10 px-3.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.24em] text-white backdrop-blur-sm">
+                {slide.eyebrow}
+              </span>
+            )}
+            <h2 className="display mt-5 text-[clamp(2.25rem,5.5vw,4rem)] text-white drop-shadow">{slide.title}</h2>
+            {slide.description && <p className="mt-4 max-w-md font-sans text-[14px] leading-relaxed text-white/85">{slide.description}</p>}
+            {slide.ctaHref && (
+              <Link href={slide.ctaHref} className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors duration-300 hover:bg-rose-soft">
+                {slide.ctaLabel || "Explore"}
+                <ArrowRight size={13} weight="light" className="transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Arrows */}
-      <button
-        type="button"
-        onClick={() => go(-1)}
-        aria-label="Previous slide"
-        className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink"
-      >
-        <CaretLeft size={16} weight="light" />
-      </button>
-      <button
-        type="button"
-        onClick={() => go(1)}
-        aria-label="Next slide"
-        className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink"
-      >
-        <CaretRight size={16} weight="light" />
-      </button>
-
-      {/* Dots */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-        {BANNERS.map((b, i) => (
-          <button
-            key={b.title}
-            type="button"
-            onClick={() => setIndex(i)}
-            aria-label={`Go to ${b.title}`}
-            aria-current={i === index}
-            className={`h-1.5 rounded-full transition-all duration-400 ${
-              i === index ? "w-7 bg-rose" : "w-1.5 bg-white/50 hover:bg-white/80"
-            }`}
-          />
-        ))}
-      </div>
+      {count > 1 && (
+        <>
+          <button type="button" onClick={() => go(-1)} aria-label="Previous slide" className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink">
+            <CaretLeft size={16} weight="light" />
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label="Next slide" className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink">
+            <CaretRight size={16} weight="light" />
+          </button>
+          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            {slides.map((b, i) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to ${b.title}`}
+                aria-current={i === index}
+                className={`h-1.5 rounded-full transition-all duration-400 ${i === index ? "w-7 bg-rose" : "w-1.5 bg-white/50 hover:bg-white/80"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }
