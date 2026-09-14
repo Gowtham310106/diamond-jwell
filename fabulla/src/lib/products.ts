@@ -7,9 +7,10 @@
  * six pieces. The products grid is built to look composed at that count rather
  * than padded out with placeholder stock.
  *
- * IMAGES: the live site sources all photography from Unsplash. Those exact
- * photo IDs are preserved here so the redesign is a like-for-like visual
- * comparison. They are stand-ins, not Fabulla's work. See README.
+ * IMAGES: the studio's own photography, supplied by the client and served from
+ * /public/images. `A` builds those paths; `U` remains only for the one slot
+ * with no real shot yet (Earrings), so that gap stays visible in a diff rather
+ * than hiding behind a lookalike. See README "Image assets".
  */
 
 export const CATEGORIES = [
@@ -42,6 +43,10 @@ export type Product = {
   featured?: boolean;
 };
 
+/** Client photography in /public/images. */
+const A = (file: string) => `/images/${file}`;
+
+/** Unsplash stand-in. Only Earrings still needs one. */
 const U = (id: string, w = 1200, q = 80) =>
   `https://images.unsplash.com/${id}?w=${w}&auto=format&fit=crop&q=${q}`;
 
@@ -61,7 +66,7 @@ export const PRODUCTS: Product[] = [
       { label: "Setting", value: "Four-claw solitaire" },
     ],
     availability: "available",
-    image: U("photo-1605100804763-247f67b3557e"),
+    image: A("ring-radiant-two-tone.jpg"),
     orientation: "portrait",
     featured: true,
   },
@@ -80,8 +85,8 @@ export const PRODUCTS: Product[] = [
       { label: "Finish", value: "High polish" },
     ],
     availability: "available",
-    image: U("photo-1611591437281-460bfbe1220a"),
-    orientation: "square",
+    image: A("chain-cuban-yellow-gold.jpg"),
+    orientation: "portrait",
     featured: true,
   },
   {
@@ -99,8 +104,8 @@ export const PRODUCTS: Product[] = [
       { label: "Certification", value: "IGI" },
     ],
     availability: "available",
-    image: U("photo-1763029513623-37d488cb97b1"),
-    orientation: "portrait",
+    image: A("tennis-bracelet-watch-case.jpg"),
+    orientation: "square",
     featured: true,
   },
   {
@@ -118,8 +123,8 @@ export const PRODUCTS: Product[] = [
       { label: "Certification", value: "GIA" },
     ],
     availability: "available",
-    image: U("photo-1695238856436-caaa0e926030"),
-    orientation: "portrait",
+    image: A("ring-round-halo-pave.jpg"),
+    orientation: "landscape",
     featured: true,
   },
   {
@@ -138,8 +143,8 @@ export const PRODUCTS: Product[] = [
       { label: "Timeline", value: "3 to 5 weeks" },
     ],
     availability: "inquire",
-    image: U("photo-1523275335684-37898b6baf30"),
-    orientation: "landscape",
+    image: A("watch-datejust-iced.jpg"),
+    orientation: "portrait",
   },
   {
     slug: "custom-engagement-ring",
@@ -157,30 +162,57 @@ export const PRODUCTS: Product[] = [
       { label: "Consultation", value: "Free" },
     ],
     availability: "custom",
-    image: U("photo-1669859129504-b5bd6f844ade"),
+    image: A("ring-emerald-cut-pave.jpg"),
     orientation: "portrait",
     featured: true,
   },
 ];
 
 export const CATEGORY_ART: Record<Category, string> = {
-  Rings: U("photo-1605100804763-247f67b3557e", 900),
-  Chains: U("photo-1611591437281-460bfbe1220a", 900),
-  Pendants: U("photo-1617038260897-41a1f14a8ca0", 900),
-  Bracelets: U("photo-1763029513623-37d488cb97b1", 900),
+  Rings: A("ring-emerald-cut-pave.jpg"),
+  Chains: A("chain-cuban-white-gold.jpg"),
+  Pendants: A("pendant-gold-bead-set.jpg"),
+  // The piece runs corner to corner in frame, so it survives the landscape
+  // crop the bento tile and the banner both take. The boxed pave bangle does
+  // not: a wide centre crop of it is mostly box lid.
+  Bracelets: A("bracelet-cuban-crown-stones.jpg"),
+  // No earring photography supplied yet. Stand-in until the client shoots one;
+  // the category is live in the nav, so it cannot go empty.
   Earrings: U("photo-1535632066927-ab7c9ab60908", 900),
-  Watches: U("photo-1523275335684-37898b6baf30", 900),
+  Watches: A("watch-sky-dweller-iced.jpg"),
 };
 
-/** Editorial art used outside the catalog. */
+/**
+ * Editorial art used outside the catalog.
+ *
+ * Keys name what the photograph shows, not where it happens to be used, so a
+ * section can be re-pointed without the name going stale. Dark-ground frames
+ * are the ones that can sit under overlaid type; the white-ground halo shot is
+ * kept for the banner that carries its text beside the image, not over it.
+ *
+ * `surat` and `CATEGORY_ART.Bracelets` are deliberately the same frame: it is
+ * the only supplied photograph with loose stones in it, and it is also the
+ * bracelet that crops best. Split them when a second stone shot lands.
+ *
+ * The custom Interstate piece ships cropped to the pendant. The frame as
+ * supplied has another jeweller's logo across the backdrop, which cannot run
+ * on this site at any size; the crop keeps the piece and drops the backdrop.
+ * It is small (345x301) after that, so it stays at highlight-tile size.
+ */
 export const ART = {
-  hero: U("photo-1515562141207-7a88fb7ce338", 1600, 90),
-  halo: U("photo-1695238856436-caaa0e926030", 1400, 90),
-  solitaire: U("photo-1605100804763-247f67b3557e", 1400, 90),
-  bench: U("photo-1596944924616-7b38e7cfac36", 1400, 85),
-  surat: U("photo-1589128777073-263566ae5e4d", 1200),
-  showroom: U("photo-1515562141207-7a88fb7ce338", 1200, 85),
-  wide: U("photo-1653316889237-b5cc78e719c1", 1920),
+  /** Mixed inventory in one case: the "everything in the studio" frame. */
+  hero: A("tennis-bracelet-watch-case.jpg"),
+  halo: A("ring-round-halo-pave.jpg"),
+  /** Emerald cut on black: the editorial frame in Campaign. */
+  solitaire: A("ring-emerald-cut-pave.jpg"),
+  /** Hand-engraved two-tone setting: the bench/custom story. */
+  bench: A("ring-radiant-two-tone.jpg"),
+  /** Loose stones beside a finished piece: the sourcing story. */
+  surat: A("bracelet-cuban-crown-stones.jpg"),
+  showroom: A("showroom-rope-chain-coins.jpg"),
+  /** Boxed designer piece: the sourced-to-order side of the studio. */
+  designer: A("bracelet-love-pave-boxed.jpg"),
+  wide: A("watch-lineup-iced.jpg"),
 } as const;
 
 export function getProduct(slug: string) {

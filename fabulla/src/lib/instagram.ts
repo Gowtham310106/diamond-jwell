@@ -26,6 +26,10 @@
  *
  * Until then `video` stays null and each card renders the still cover with the
  * play affordance suppressed. No placeholder clips are wired in.
+ *
+ * Covers are already the client's own photographs from /public/images, so the
+ * tray is real even while the clips are outstanding. Replace a cover only when
+ * its exported poster frame arrives, so cover and clip show the same piece.
  * ---------------------------------------------------------------------------
  */
 
@@ -41,8 +45,7 @@ export type Highlight = {
   caption: string;
 };
 
-const U = (id: string, w = 600) =>
-  `https://images.unsplash.com/${id}?w=${w}&auto=format&fit=crop&q=80`;
+const A = (file: string) => `/images/${file}`;
 
 /**
  * Titles mirror the highlight tray on @fabulladiamondco. Confirm against the
@@ -52,42 +55,42 @@ export const HIGHLIGHTS: Highlight[] = [
   {
     id: "custom-rings",
     title: "Custom Rings",
-    cover: U("photo-1605100804763-247f67b3557e"),
+    cover: A("ring-radiant-two-tone.jpg"),
     video: null,
     caption: "Engagement pieces, start to finish",
   },
   {
     id: "cuban-links",
     title: "Cuban Links",
-    cover: U("photo-1611591437281-460bfbe1220a"),
+    cover: A("chain-cuban-yellow-gold.jpg"),
     video: null,
     caption: "Solid links, hand-finished",
   },
   {
-    id: "the-bench",
-    title: "The Bench",
-    cover: U("photo-1596944924616-7b38e7cfac36"),
+    id: "custom-pieces",
+    title: "Custom Pieces",
+    cover: A("pendant-custom-interstate.jpg"),
     video: null,
-    caption: "Setting, polishing, finishing",
+    caption: "Built from the client's own drawing",
   },
   {
     id: "client-pickups",
     title: "Pickups",
-    cover: U("photo-1535632066927-ab7c9ab60908"),
+    cover: A("bracelet-alhambra-boxed.jpg"),
     video: null,
     caption: "Pieces going home",
   },
   {
     id: "watches",
     title: "Watches",
-    cover: U("photo-1523275335684-37898b6baf30"),
+    cover: A("watch-cartier-santos.jpg"),
     video: null,
     caption: "Bezel and dial work",
   },
   {
     id: "loose-stones",
     title: "Loose Stones",
-    cover: U("photo-1615655406736-b37c4fabf923"),
+    cover: A("bracelet-cuban-crown-stones.jpg"),
     video: null,
     caption: "Natural and lab-grown, side by side",
   },

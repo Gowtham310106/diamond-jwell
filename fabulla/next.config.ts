@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // The client's existing site sources its photography from Unsplash.
-    // Preserved so the redesign renders the same asset set until real
-    // Fabulla product photography is shot. See README "Image assets".
+    // Fabulla's own photography is served from /public/images and needs no
+    // pattern here. This entry covers the single remaining stand-in, the
+    // Earrings category art, and can be deleted with it. See README
+    // "Image assets".
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
     ],

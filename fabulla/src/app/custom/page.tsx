@@ -56,13 +56,15 @@ export default function CustomPage() {
 
         <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 lg:px-10 lg:pb-32 lg:pt-32">
           <div className="max-w-2xl">
-            <p className="eyebrow">Custom work</p>
-            <h1 className="display mt-5 text-[clamp(2.5rem,6vw,4.75rem)] text-ink">
+            {/* Light type: the scrim above runs to solid ink under this
+                column, so the page's dark ink palette is unreadable here. */}
+            <p className="eyebrow !text-rose">Custom work</p>
+            <h1 className="display mt-5 text-[clamp(2.5rem,6vw,4.75rem)] text-white">
               Bring us a sketch,
               <br />
-              a photo, or a <em className="text-rose-ink">feeling</em>
+              a photo, or a <em className="text-rose">feeling</em>
             </h1>
-            <p className="mt-8 max-w-lg font-sans text-[15px] leading-relaxed text-ink-2">
+            <p className="mt-8 max-w-lg font-sans text-[15px] leading-relaxed text-white/85">
               You work directly with the designer, the sourcer and the
               craftsman. No middlemen, no call centre, no compromises on the
               stone.

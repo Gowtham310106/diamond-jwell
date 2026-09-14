@@ -31,7 +31,9 @@ clone of the brand that reference was cloned from.
   page's own type colour used as one terminal block, not a theme inversion.
 - **Color lock:** one accent family. `--color-rose` is a fill and border colour
   only (2.05:1 on cream, so it can never carry text); accent text uses
-  `--color-rose-ink`. Gold is decorative, used for rules and marks, never body.
+  `--color-rose-ink`. The one exception is type set on an ink ground, as in the
+  `/custom` header, where the ratios invert: rose reads 8.37:1 there and
+  rose-ink only 3.44:1. Gold is decorative, used for rules and marks, never body.
 - **Shape lock:** cards and media 16px, chips and buttons pill, circular nav
   items full.
 - **CTA lock:** one label per intent, defined in `src/lib/site.ts`, reused
@@ -134,12 +136,50 @@ launch; the current titles are a best guess at the tray.
 
 ---
 
+## Image assets
+
+All photography lives in `public/images` and is wired through three exports in
+`src/lib/products.ts`, so a swap is a one-line change in one file:
+
+| Export | Drives |
+|---|---|
+| `PRODUCTS[].image` | product cards, product pages, the Campaign grid |
+| `CATEGORY_ART` | nav circles, mega-menu banners, the category bento |
+| `ART` | intro screens, hero banners, Collections, Craftsmanship, About, Custom |
+
+`HIGHLIGHTS[].cover` in `src/lib/instagram.ts` points at the same folder.
+
+Placement rules that the current mapping follows, and that a swap should keep:
+
+- **Dark-ground frames carry overlaid type.** The intro captions sit on a
+  `bg-black/30` scrim and nothing else, so every intro poster is a black-ground
+  shot. The hero carousel has its own heavy left scrim, which is why the
+  white-ground halo frame can run there and nowhere else.
+- **`orientation` matches the file's real aspect** (`landscape` for the halo
+  frame, `square` for the tennis-bracelet case, `portrait` for the rest), so
+  the product grid crops to the card instead of cropping the piece.
+- **The custom Interstate piece is cropped to the pendant.** The supplied
+  frame has another jeweller's logo across the backdrop, so the shipped file
+  is a crop of the piece alone. That leaves it 345x301, small enough that it
+  runs as a highlight tile only, never full-bleed. Worth a reshoot against
+  Fabulla's own backdrop; the client still holds the uncropped original.
+
+Two gaps, both deliberate and both visible in the code:
+
+1. **Earrings have no photograph.** `CATEGORY_ART.Earrings` is the one
+   remaining Unsplash stand-in, and the `images.unsplash.com` entry in
+   `next.config.ts` exists only for it. Both go away together.
+2. **One loose-stone frame is doing two jobs.** `ART.hero` and `ART.surat` are
+   the same file, because it is the only supplied shot with loose stones in it
+   and both the opener and the sourcing story need them.
+
 ## Open items for the client
 
-1. **No product photography exists.** Every image on the current live site is
-   Unsplash stock, and those exact photo IDs are preserved here so the redesign
-   is a like-for-like comparison. Real shots would lift this more than any
-   further code.
+1. **Photography is the client's own, but low-resolution.** Every frame in
+   `public/images` is between 430px and 700px on its long edge, which is fine
+   for cards and nav circles and soft on the full-bleed intro and banners.
+   Re-exports at 2000px+ would lift those slots with no code change: same
+   filenames, same places. Two gaps remain, listed under "Image assets".
 2. **The wordmark is set in type, not the client's logo.** The live mark is a
    40px JPEG, unusable at scale. Needs the client's sign-off and vector file.
 3. **The enquiry form has no backend.** A validated submit composes a prefilled

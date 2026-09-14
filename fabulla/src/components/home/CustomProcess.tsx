@@ -28,7 +28,7 @@ const STEPS = [
     body:
       "Share the vision, the budget, and the style. Free, unhurried, and with the person who will actually build the piece.",
     art: ART.showroom,
-    alt: "A consultation in the Fabulla Chicago showroom",
+    alt: "Finished pieces on display in the Fabulla Chicago showroom",
   },
   {
     key: "design",
@@ -36,14 +36,14 @@ const STEPS = [
     body:
       "We draw the piece and find the stone against your budget. Natural or lab-grown, with the same expertise behind both.",
     art: ART.surat,
-    alt: "Loose diamonds being graded and matched",
+    alt: "Loose diamonds matched against a finished piece",
   },
   {
     key: "craft",
     title: "Crafted for you",
     body: `Set, finished and delivered by hand. Most commissions leave the bench in ${METRICS.customTimeline}.`,
     art: ART.bench,
-    alt: "A jeweller setting stones at the bench",
+    alt: "A hand-engraved two-tone setting, finished at the bench",
   },
 ] as const;
 

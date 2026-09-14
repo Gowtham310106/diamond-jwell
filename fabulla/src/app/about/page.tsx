@@ -59,7 +59,7 @@ export default function AboutPage() {
               <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
                 <Image
                   src={ART.surat}
-                  alt="Rough and polished diamonds from Surat, India"
+                  alt="Loose diamonds beside a finished Fabulla piece"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 40vw"

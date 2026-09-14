@@ -29,8 +29,8 @@ export const NAV_CATEGORIES: NavCategory[] = [
   {
     id: "all",
     name: "All Jewelry",
-    image: ART.wide,
-    bannerImage: ART.hero,
+    image: ART.hero,
+    bannerImage: ART.wide,
     bannerTitle: "Every piece in the studio, natural and lab-grown.",
     bannerHref: "/products",
     children: [
@@ -91,8 +91,8 @@ export const NAV_CATEGORIES: NavCategory[] = [
     id: "bracelets",
     name: "Bracelets",
     image: CATEGORY_ART.Bracelets,
-    bannerImage: CATEGORY_ART.Bracelets,
-    bannerTitle: "Tennis bracelets, matched across the full line.",
+    bannerImage: ART.designer,
+    bannerTitle: "Bracelets, matched stone for stone.",
     bannerHref: "/products?category=Bracelets",
     children: [
       { name: "All bracelets", href: "/products?category=Bracelets" },
@@ -164,14 +164,14 @@ export const INTRO_SCREENS: IntroScreen[] = [
   {
     kind: "video",
     src: "/video/intro-solitaire.mp4",
-    poster: ART.halo,
+    poster: ART.solitaire,
     title: "Fabulla",
     subtitle: "Diamonds crafted beyond compare",
   },
   {
     kind: "video",
     src: "/video/intro-couture.mp4",
-    poster: ART.solitaire,
+    poster: CATEGORY_ART.Chains,
     title: "The Diamond Edit",
     subtitle: "Natural and lab-grown, certified either way",
   },
@@ -227,7 +227,7 @@ export const BANNERS: Banner[] = [
   {
     image: CATEGORY_ART.Bracelets,
     eyebrow: "Matched line",
-    title: "Pave Tennis Bracelets",
+    title: "Pave Set Bracelets",
     description:
       "Colour and clarity matched across the full length. That matching is the slow part.",
     href: "/products?category=Bracelets",
