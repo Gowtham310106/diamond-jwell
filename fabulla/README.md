@@ -69,6 +69,7 @@ at 4.45 and 4.41 on the banded sections.
 | `Craftsmanship` | copy and features beside the certificate card |
 | `Testimonials` | three client cards |
 | `ClosingCta` | the one centred moment |
+| `Concierge` | chat launcher pinned bottom-right, revealed once the slides pass |
 
 ### What was changed from the reference, and why
 
@@ -173,6 +174,53 @@ Two gaps, both deliberate and both visible in the code:
    the same file, because it is the only supplied shot with loose stones in it
    and both the opener and the sourcing story need them.
 
+---
+
+## AI concierge
+
+A chat panel that answers visitors from this site's own data. The launcher is
+pinned bottom-right and **does not exist until the opening slides have scrolled
+past**: `<Concierge />` renders a sentinel where it sits in `page.tsx` (directly
+after `HeroCarousel`) and only reveals itself once that point clears the
+viewport. The intro and the banner carousel are this page's one uninterrupted
+stretch; a chat bubble floating over them undoes it. To run it on a page with no
+slides to clear, mount `<Concierge reveal="immediate" />`.
+
+### The two answer paths
+
+`POST /api/chat` takes the thread and returns `{ reply, source }`. The panel
+labels every answer with which path produced it, so nothing is passed off as
+more than it is:
+
+| `source` | When | Labelled |
+|---|---|---|
+| `claude` | `ANTHROPIC_API_KEY` is set | AI concierge |
+| `studio` | No key, or the API call failed | Studio answer |
+
+The fallback is a small keyword matcher over the same facts (`studioAnswer` in
+`src/lib/concierge.ts`). It answers the questions the studio actually gets -
+timelines, budgets, lab-grown vs natural, watch work, the showroom - and hands
+over the phone number when it cannot. It is the honest floor for a deploy with
+no key, not a pretend AI, and an upstream failure degrades into it rather than
+into a dead panel.
+
+### Configuring it
+
+Copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` (on Vercel, the
+same name as a project environment variable). The key is read in
+`src/app/api/chat/route.ts` and nowhere else; it never reaches the client.
+
+Everything the assistant may say is built in `buildSystemPrompt()` from
+`site.ts` and `products.ts` - prices, timelines, contact details and the full
+catalog - so there is one place to change a fact. The prompt forbids inventing
+stock, quotes, delivery dates or policy, and routes anything binding to the
+studio. Visitor text is framed as a customer question, never as instructions.
+
+Two constants worth knowing in the route: `MODEL` (`claude-opus-5`) and `EFFORT`
+(`low` - these are short grounded answers, and a visitor is watching a spinner).
+Requests are throttled per IP in memory, which resets on deploy and is per
+instance; put a real limiter at the edge if this ever takes traffic.
+
 ## Open items for the client
 
 1. **Photography is the client's own, but low-resolution.** Every frame in
@@ -184,9 +232,13 @@ Two gaps, both deliberate and both visible in the code:
    40px JPEG, unusable at scale. Needs the client's sign-off and vector file.
 3. **The enquiry form has no backend.** A validated submit composes a prefilled
    email. Replace the body of `submit` in `EnquiryForm.tsx`; the loading, sent
-   and error states already exist.
-4. **`/track`, `/privacy`, `/terms` are linked but not built.**
-5. **The intro clips are generic macro footage**, carried over from the
+   and error states already exist. (The concierge endpoint is separate and does
+   have a backend - see "AI concierge".)
+4. **The concierge needs a key to be an AI.** Until `ANTHROPIC_API_KEY` is set
+   it answers from the fallback matcher and labels every reply as such. The
+   studio should also read the answers it gives for tone before launch.
+5. **`/track`, `/privacy`, `/terms` are linked but not built.**
+6. **The intro clips are generic macro footage**, carried over from the
    reference project. They should become real Fabulla footage.
 
 ---

@@ -8,6 +8,7 @@ import Campaign from "@/components/home/Campaign";
 import Craftsmanship from "@/components/home/Craftsmanship";
 import Testimonials from "@/components/home/Testimonials";
 import ClosingCta from "@/components/home/ClosingCta";
+import Concierge from "@/components/site/Concierge";
 import GoldRule from "@/components/ui/GoldRule";
 
 /**
@@ -25,6 +26,11 @@ import GoldRule from "@/components/ui/GoldRule";
  *   Testimonials ....... three client cards
  *   ClosingCta ......... the one centred moment
  *
+ * Concierge sits directly after the carousel and reveals itself once that
+ * position scrolls past, so the chat launcher never floats over the opening
+ * slides. It is fixed to the viewport, so where it sits in this tree decides
+ * only when it appears, not where.
+ *
  * Gold rules separate the upper sections exactly as in the reference, then
  * stop once the sections start carrying their own top borders, so the page
  * never shows a rule and a border stacked together.
@@ -39,6 +45,7 @@ export default function HomePage() {
 
       <div className="relative z-10 bg-canvas">
         <HeroCarousel />
+        <Concierge />
         <GoldRule />
         <Collections />
         <GoldRule />
