@@ -14,7 +14,6 @@ import {
   ChatCircleDots,
   Images,
   Users,
-  Plugs,
 } from "@phosphor-icons/react";
 
 const GROUPS: { label: string; items: { href: string; label: string; Icon: typeof SquaresFour }[] }[] = [
@@ -50,7 +49,6 @@ const GROUPS: { label: string; items: { href: string; label: string; Icon: typeo
     label: "System",
     items: [
       { href: "/admin/team", label: "Team", Icon: Users },
-      { href: "/admin/integrations", label: "Integrations", Icon: Plugs },
     ],
   },
 ];

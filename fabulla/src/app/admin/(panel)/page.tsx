@@ -34,9 +34,6 @@ export default async function Dashboard() {
                 <li key={m}>{m}</li>
               ))}
             </ul>
-            <Link href="/admin/integrations" className="mt-2 inline-block underline underline-offset-4">
-              Open Integrations for the setup checklist
-            </Link>
           </Notice>
         </div>
       )}
