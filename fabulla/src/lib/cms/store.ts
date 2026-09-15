@@ -59,16 +59,22 @@ function mongoClient(uri: string): Promise<MongoClient> {
   if (!globalThis.__fabullaMongo) {
     globalThis.__fabullaMongo = new MongoClient(uri, {
       maxPoolSize: 5,
-      serverSelectionTimeoutMS: 8_000,
-    }).connect();
+      serverSelectionTimeoutMS: 5_000,
+    })
+      .connect()
+      .catch((err) => {
+        globalThis.__fabullaMongo = undefined;
+        throw err;
+      });
   }
   return globalThis.__fabullaMongo;
 }
 
 class MongoStore implements Store {
   private seeded = new Set<string>();
+  private fallback = new FileStore();
 
-  constructor(private uri: string, private dbName: string) {}
+  constructor(readonly uri: string, readonly dbName: string) {}
 
   private async db(): Promise<Db> {
     const client = await mongoClient(this.uri);
@@ -91,30 +97,50 @@ class MongoStore implements Store {
   }
 
   async all<K extends CollectionName>(col: K) {
-    const db = await this.db();
-    await this.ensureSeeded(db, col);
-    const docs = await this.col(db, col).find({}).toArray();
-    return docs as unknown as CollectionTypes[K][];
+    try {
+      const db = await this.db();
+      await this.ensureSeeded(db, col);
+      const docs = await this.col(db, col).find({}).toArray();
+      return docs as unknown as CollectionTypes[K][];
+    } catch (error) {
+      console.warn(`[Store] MongoDB read failed for "${col}", using seed/fallback:`, error instanceof Error ? error.message : error);
+      return this.fallback.all(col);
+    }
   }
 
   async get<K extends CollectionName>(col: K, id: string) {
-    const db = await this.db();
-    await this.ensureSeeded(db, col);
-    const doc = await this.col(db, col).findOne({ _id: id });
-    return (doc as unknown as CollectionTypes[K]) ?? null;
+    try {
+      const db = await this.db();
+      await this.ensureSeeded(db, col);
+      const doc = await this.col(db, col).findOne({ _id: id });
+      return (doc as unknown as CollectionTypes[K]) ?? null;
+    } catch (error) {
+      console.warn(`[Store] MongoDB get("${col}/${id}") failed, using fallback:`, error instanceof Error ? error.message : error);
+      return this.fallback.get(col, id);
+    }
   }
 
   async put<K extends CollectionName>(col: K, doc: CollectionTypes[K]) {
-    const db = await this.db();
-    await this.ensureSeeded(db, col);
-    const full = doc as unknown as AnyDoc;
-    await this.col(db, col).replaceOne({ _id: full._id }, full, { upsert: true });
-    return doc;
+    try {
+      const db = await this.db();
+      await this.ensureSeeded(db, col);
+      const full = doc as unknown as AnyDoc;
+      await this.col(db, col).replaceOne({ _id: full._id }, full, { upsert: true });
+      return doc;
+    } catch (error) {
+      console.warn(`[Store] MongoDB put("${col}") failed, saving to fallback:`, error instanceof Error ? error.message : error);
+      return this.fallback.put(col, doc);
+    }
   }
 
   async remove(col: CollectionName, id: string) {
-    const db = await this.db();
-    await this.col(db, col).deleteOne({ _id: id });
+    try {
+      const db = await this.db();
+      await this.col(db, col).deleteOne({ _id: id });
+    } catch (error) {
+      console.warn(`[Store] MongoDB remove("${col}/${id}") failed, removing from fallback:`, error instanceof Error ? error.message : error);
+      await this.fallback.remove(col, id);
+    }
   }
 
   describe() {
@@ -223,6 +249,11 @@ export const loadAll = cache(async <K extends CollectionName>(col: K) => {
 export async function pingStore(): Promise<{ ok: boolean; detail: string }> {
   const store = getStore();
   try {
+    if (store instanceof MongoStore) {
+      const client = await mongoClient(store.uri);
+      await client.db(store.dbName).command({ ping: 1 });
+      return { ok: true, detail: store.describe().detail };
+    }
     await store.all("settings");
     return { ok: true, detail: store.describe().detail };
   } catch (error) {
