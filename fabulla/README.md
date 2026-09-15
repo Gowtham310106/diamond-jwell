@@ -65,10 +65,27 @@ Two apps in one Next.js project:
   "Studio answer" (the FAQ-matcher fallback when there is no key or Gemini
   fails). Conversations are logged for the admin.
 - **Photo variants** (`/api/admin/ai/image`): Gemini's image model takes an
-  existing product photo and returns a cleaner or re-angled version — studio
-  white, black velvet, three-quarter, wide hero — or a custom prompt. The
-  result is saved to the media library beside the original; nothing is
-  replaced without the admin choosing it.
+  existing product photo and returns a cleaner or re-angled version. The
+  prompt library lives in `src/lib/ai-prompts.ts`: every preset is the same
+  fidelity clause (same physical piece, change nothing), an angle, a
+  background and a finish clause, so a set of results match each other.
+  Presets: enhance only, front, top-down, three-quarter, side profile, macro,
+  black velvet, worn, lifestyle, wide hero; "Generate angle set" runs front,
+  three-quarter, profile and macro in one press. A custom description gets
+  the fidelity and finish clauses appended. Results are saved to the media
+  library beside the original; nothing is replaced without the admin
+  choosing it.
+
+### Product images: more than one
+
+A product's `images` list is a slideshow everywhere it appears. The product
+page gallery (`ProductGallery`) cross-fades between stacked frames with
+arrows, a counter, arrow keys when focused, swipe on touch, and thumbnails;
+a video, if set, is the last slide and only mounts while active. Cards
+(`CardMedia`) step through up to four frames every 900ms while hovered and
+snap back to the cover on leave, with dots underneath; touch screens see the
+cover and the dots. Both honour `prefers-reduced-motion` by switching
+without the fade.
 
 ---
 

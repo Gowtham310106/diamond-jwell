@@ -10,6 +10,7 @@ import {
   Sparkle,
   X,
 } from "@phosphor-icons/react";
+import { ANGLE_SET, PRESET_LABELS } from "@/lib/ai-prompts";
 import type { MediaAsset } from "@/lib/cms/types";
 import { btnOutline, btnQuiet, inputCls } from "./ui";
 import { isVideo, uploadFile } from "./upload";
@@ -37,12 +38,7 @@ type Props = {
   withInput?: boolean;
 };
 
-const AI_PRESETS = [
-  { key: "studio", label: "Clean studio shot" },
-  { key: "dark", label: "On black velvet" },
-  { key: "angle", label: "Three-quarter angle" },
-  { key: "hero", label: "Wide hero banner" },
-];
+const AI_PRESETS = Object.entries(PRESET_LABELS).map(([key, label]) => ({ key, label }));
 
 export default function MediaPicker({ name, value, multiple = false, accept = "image", folder = "media", label, onChange, withInput = true }: Props) {
   const [urls, setUrls] = useState<string[]>(value);
@@ -53,7 +49,7 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
   const [showLibrary, setShowLibrary] = useState(false);
   const [aiFor, setAiFor] = useState<string | null>(null);
   const [aiPrompt, setAiPrompt] = useState("");
-  const [aiResult, setAiResult] = useState<MediaAsset | null>(null);
+  const [aiResults, setAiResults] = useState<MediaAsset[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
 
   // Sync from props by content, not identity: a parent that rebuilds the
@@ -105,22 +101,49 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
     setLibrary(((await res.json()) as MediaAsset[]) ?? []);
   }
 
+  async function generate(preset: string): Promise<MediaAsset> {
+    const res = await fetch("/api/admin/ai/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sourceUrl: aiFor, preset, prompt: aiPrompt || undefined }),
+    });
+    const data = (await res.json()) as MediaAsset | { error: string };
+    if ("error" in data) throw new Error(data.error);
+    return data;
+  }
+
   async function runAi(preset: string) {
     if (!aiFor) return;
     setError(null);
     setBusy("Generating with Gemini — 10 to 30 seconds");
-    setAiResult(null);
     try {
-      const res = await fetch("/api/admin/ai/image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceUrl: aiFor, preset, prompt: aiPrompt || undefined }),
-      });
-      const data = (await res.json()) as MediaAsset | { error: string };
-      if ("error" in data) throw new Error(data.error);
-      setAiResult(data);
+      const asset = await generate(preset);
+      setAiResults((r) => [asset, ...r]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  /**
+   * One press, four angles: front, three-quarter, profile, macro. Runs them
+   * one after another so a slow model does not fan out into four parallel
+   * requests, and keeps whatever finished if a later one fails.
+   */
+  async function runAngleSet() {
+    if (!aiFor) return;
+    setError(null);
+    try {
+      let n = 0;
+      for (const preset of ANGLE_SET) {
+        n += 1;
+        setBusy(`Angle ${n} of ${ANGLE_SET.length}: ${PRESET_LABELS[preset]} — about 20 seconds each`);
+        const asset = await generate(preset);
+        setAiResults((r) => [...r, asset]);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Generation failed part-way; the angles that finished are below.");
     } finally {
       setBusy(null);
     }
@@ -176,7 +199,7 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
                       type="button"
                       onClick={() => {
                         setAiFor(url);
-                        setAiResult(null);
+                        setAiResults([]);
                         setAiPrompt("");
                       }}
                       title="Generate a variant with AI"
@@ -278,7 +301,12 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={aiFor} alt="" className="aspect-square w-full rounded-lg object-cover" />
             <div>
-              <div className="flex flex-wrap gap-2">
+              {multiple && (
+                <button type="button" disabled={Boolean(busy)} onClick={runAngleSet} className={`${btnOutline} border-rose text-rose-ink`}>
+                  <Sparkle size={13} weight="fill" /> Generate angle set (front, ¾, profile, macro)
+                </button>
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
                 {AI_PRESETS.map((p) => (
                   <button key={p.key} type="button" disabled={Boolean(busy)} onClick={() => runAi(p.key)} className={btnOutline}>
                     {p.label}
@@ -288,18 +316,29 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Or describe exactly what you want, then pick any button above. The piece itself is always kept identical."
+                placeholder="Or describe the shot yourself (angle, surface, light) and press any button. The piece itself is always kept identical."
                 className={`${inputCls} mt-3 min-h-[64px]`}
               />
-              {aiResult && (
-                <div className="mt-3 flex items-start gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={aiResult.url} alt="" className="h-28 w-28 rounded-lg border border-line object-cover" />
-                  <div className="flex flex-col gap-2">
-                    <button type="button" onClick={() => add([aiResult.url])} className={btnOutline}>
-                      Use this image
-                    </button>
-                    <p className="font-sans text-[11.5px] text-ink-3">Saved to the media library either way, so nothing is lost.</p>
+              {aiResults.length > 0 && (
+                <div className="mt-3">
+                  <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {aiResults.map((asset) => (
+                      <li key={asset._id} className="overflow-hidden rounded-lg border border-line">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={asset.url} alt="" className="aspect-square w-full object-cover" />
+                        <button type="button" disabled={urls.includes(asset.url)} onClick={() => add([asset.url])} className="block w-full px-2 py-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-rose-ink hover:bg-canvas-2 disabled:text-ink-3">
+                          {urls.includes(asset.url) ? "Added" : multiple ? "Add to images" : "Use this image"}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-2 flex items-center gap-3">
+                    {multiple && aiResults.some((a) => !urls.includes(a.url)) && (
+                      <button type="button" onClick={() => add(aiResults.map((a) => a.url))} className={btnQuiet}>
+                        Add all
+                      </button>
+                    )}
+                    <p className="font-sans text-[11.5px] text-ink-3">Every result is saved to the media library either way, so nothing is lost.</p>
                   </div>
                 </div>
               )}

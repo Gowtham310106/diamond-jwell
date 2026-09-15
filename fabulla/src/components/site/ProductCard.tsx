@@ -1,14 +1,15 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { ProductView } from "@/lib/cms/repo";
 import { formatPrice } from "@/lib/utils";
+import CardMedia from "./CardMedia";
 
 const BADGE_LABEL: Record<string, string> = { new: "New", bestseller: "Best seller", sale: "Sale", custom: "Custom" };
 
 /**
- * The one product card. Image, badge, name, price with compare-at, and the
- * category or blurb underneath. Used in the homepage rows, the catalog grid
- * and "more from the studio".
+ * The one product card. Image (a hover slideshow when the product has more
+ * than one), badge, name, price with compare-at, and the category or blurb
+ * underneath. Used in the homepage rows, the catalog grid and "more from
+ * the studio".
  */
 export default function ProductCard({
   product,
@@ -39,25 +40,7 @@ export default function ProductCard({
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div className={`relative ${aspect} overflow-hidden rounded-2xl border border-line bg-canvas-2`}>
-        {product.image && (
-          <Image
-            src={product.image}
-            alt={`${product.name} by Fabulla Diamonds Co.`}
-            fill
-            priority={priority}
-            sizes={sizes}
-            className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-          />
-        )}
-        {product.images[1] && (
-          <Image
-            src={product.images[1]}
-            alt=""
-            fill
-            sizes={sizes}
-            className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
-        )}
+        <CardMedia images={product.images} alt={`${product.name} by Fabulla Diamonds Co.`} sizes={sizes} priority={priority} className="absolute inset-0" />
         {(badge || onSale) && (
           <span className="absolute left-3 top-3 rounded-full bg-deep/85 px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-[0.18em] text-on-deep backdrop-blur-sm">
             {onSale ? "Sale" : BADGE_LABEL[badge] ?? badge}

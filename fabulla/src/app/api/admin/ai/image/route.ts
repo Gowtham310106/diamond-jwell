@@ -1,5 +1,5 @@
 /**
- * POST /api/admin/ai/image  { sourceUrl, prompt, aspectRatio? }
+ * POST /api/admin/ai/image  { sourceUrl, preset?, prompt?, aspectRatio? }
  *
  * The admin "enhance" button. Takes an existing photo, asks Gemini's image
  * model for a variant (cleaner background, a different angle, a hero crop),
@@ -12,24 +12,13 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { aiConfigured, editImage } from "@/lib/ai";
+import { FIDELITY, FINISH, PRESETS, PRESET_ASPECT } from "@/lib/ai-prompts";
 import { upsert } from "@/lib/cms/repo";
 import type { MediaAsset } from "@/lib/cms/types";
 import { LOCAL_UPLOAD_DIR, objectKey, putObject } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-/** Prompts the studio can pick from; a free-text box sits beside them. */
-export const PRESETS: Record<string, string> = {
-  studio:
-    "Re-shoot this exact piece of jewelry as a professional product photograph: pure white seamless studio background, soft even lighting, sharp focus on every stone, no hands, no props, no text, no logos, the piece centered and filling the frame. Keep the design, metal colour and stone layout identical.",
-  dark:
-    "Re-shoot this exact piece of jewelry on black velvet with dramatic soft light, catching the facets. Same design, metal and stones. No hands, props, text or logos.",
-  angle:
-    "Show this exact piece of jewelry from a three-quarter angle, slightly above, as a luxury catalog photograph. Same design, metal colour and stone layout. Clean neutral background, no text or logos.",
-  hero:
-    "Create a wide, cinematic hero image of this exact piece of jewelry for a website banner: the piece to the right third of the frame on a dark, softly lit surface with room for text on the left. Same design and materials. No text or logos.",
-};
 
 async function loadSource(url: string): Promise<{ data: Buffer; mimeType: string }> {
   if (url.startsWith("/")) {
@@ -58,16 +47,21 @@ export async function POST(request: Request) {
     | null;
   if (!body?.sourceUrl) return NextResponse.json({ error: "sourceUrl is required." }, { status: 400 });
 
-  const prompt = (body.prompt?.trim() || (body.preset && PRESETS[body.preset]) || PRESETS.studio).slice(0, 2000);
+  const preset = body.preset && PRESETS[body.preset] ? body.preset : undefined;
+  // A custom description still gets the fidelity and finish clauses, so a
+  // one-line request ("on a marble slab") comes back looking like the rest.
+  const custom = body.prompt?.trim();
+  const prompt = (custom ? `${custom} ${FIDELITY} ${FINISH}` : preset ? PRESETS[preset] : PRESETS.studio).slice(0, 3000);
+  const aspectRatio = body.aspectRatio || (preset && PRESET_ASPECT[preset]) || "1:1";
 
   try {
     const source = await loadSource(body.sourceUrl);
-    const out = await editImage({ image: source, prompt, aspectRatio: body.aspectRatio });
+    const out = await editImage({ image: source, prompt, aspectRatio });
     if (!out) return NextResponse.json({ error: "AI is not configured." }, { status: 503 });
 
     const ext = out.mimeType.includes("png") ? "png" : out.mimeType.includes("webp") ? "webp" : "jpg";
     const base = body.sourceUrl.split("/").pop()?.replace(/\.[a-z0-9]+$/i, "") || "image";
-    const key = objectKey("ai", `${base}-${body.preset ?? "edit"}.${ext}`);
+    const key = objectKey("ai", `${base}-${preset ?? "edit"}.${ext}`);
     const url = await putObject(key, out.data, out.mimeType);
 
     const asset = await upsert<MediaAsset>("media", {
