@@ -132,8 +132,8 @@ export default function InstagramHighlights({ title, subtitle, highlights, insta
       <AnimatePresence>
         {open && open.video && (
           <motion.div className="fixed inset-0 z-[3000] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : 0.25 }} role="dialog" aria-modal="true" aria-label={`${open.title} highlight`}>
-            <div className="absolute inset-0 bg-ink/85 backdrop-blur-md" onClick={close} />
-            <motion.div className="relative aspect-[9/16] h-[min(84vh,740px)] overflow-hidden rounded-2xl border border-line-2 bg-ink" initial={reduce ? false : { scale: 0.96, y: 12 }} animate={{ scale: 1, y: 0 }} exit={reduce ? undefined : { scale: 0.96, y: 12 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
+            <div className="absolute inset-0 bg-deep/85 backdrop-blur-md" onClick={close} />
+            <motion.div className="relative aspect-[9/16] h-[min(84vh,740px)] overflow-hidden rounded-2xl border border-line-2 bg-deep" initial={reduce ? false : { scale: 0.96, y: 12 }} animate={{ scale: 1, y: 0 }} exit={reduce ? undefined : { scale: 0.96, y: 12 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
               <video key={open.id} src={open.video} poster={open.cover} controls autoPlay playsInline className="h-full w-full object-cover" />
             </motion.div>
             <button ref={closeRef} type="button" onClick={close} aria-label="Close" className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border border-white/30 text-white transition-colors hover:border-rose hover:text-rose">

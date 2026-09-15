@@ -59,7 +59,7 @@ export default function ProductCard({
           />
         )}
         {(badge || onSale) && (
-          <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-[0.18em] text-canvas backdrop-blur-sm">
+          <span className="absolute left-3 top-3 rounded-full bg-deep/85 px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-[0.18em] text-on-deep backdrop-blur-sm">
             {onSale ? "Sale" : BADGE_LABEL[badge] ?? badge}
           </span>
         )}

@@ -20,7 +20,7 @@ export default function Campaign({ settings, products, image }: { settings: Sett
           <Reveal className="lg:col-span-5">
             <div className="relative flex h-full min-h-[460px] flex-col justify-between overflow-hidden rounded-3xl border border-line p-8 md:p-10">
               {image && <Image src={image} alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" />}
-              <div className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/65 to-ink/85" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/65 to-black/85" />
 
               <div className="relative z-10">
                 {campaign.eyebrow && (

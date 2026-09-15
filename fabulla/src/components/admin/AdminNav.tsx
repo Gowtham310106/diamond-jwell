@@ -73,7 +73,7 @@ export default function AdminNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 font-sans text-[13px] transition-colors ${
-                  active ? "bg-rose-soft text-ink" : "text-ink-2 hover:bg-surface hover:text-ink"
+                  active ? "bg-rose-soft text-on-rose" : "text-ink-2 hover:bg-surface hover:text-ink"
                 }`}
               >
                 <Icon size={16} weight={active ? "fill" : "light"} className={active ? "text-rose-ink" : ""} />

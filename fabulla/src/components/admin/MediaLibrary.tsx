@@ -79,7 +79,7 @@ export default function MediaLibrary({ initial }: { initial: MediaAsset[] }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={asset.url} alt={asset.alt} className="h-full w-full object-cover" />
               )}
-              {asset.origin === "ai" && <span className="absolute left-2 top-2 rounded-full bg-ink px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-canvas">AI</span>}
+              {asset.origin === "ai" && <span className="absolute left-2 top-2 rounded-full bg-deep px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-on-deep">AI</span>}
             </div>
             <div className="p-3">
               <p className="truncate font-mono text-[10px] text-ink-3" title={asset.name}>

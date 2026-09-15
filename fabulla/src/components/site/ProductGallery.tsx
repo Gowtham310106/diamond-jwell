@@ -38,7 +38,7 @@ export default function ProductGallery({ images, video, name }: { images: string
                 className={`relative h-20 w-20 overflow-hidden rounded-xl border transition-colors ${i === active ? "border-rose" : "border-line hover:border-line-2"}`}
               >
                 {item.kind === "video" ? (
-                  <span className="flex h-full w-full items-center justify-center bg-ink text-canvas">
+                  <span className="flex h-full w-full items-center justify-center bg-deep text-on-deep">
                     <Play size={18} weight="fill" />
                   </span>
                 ) : (

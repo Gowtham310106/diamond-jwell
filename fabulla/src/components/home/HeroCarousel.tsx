@@ -42,7 +42,7 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section
-      className="relative h-[440px] w-full overflow-hidden border-b border-line bg-ink sm:h-[520px] lg:h-[600px]"
+      className="relative h-[440px] w-full overflow-hidden border-b border-line bg-deep sm:h-[520px] lg:h-[600px]"
       aria-roledescription="carousel"
       aria-label="Featured"
       onMouseEnter={() => setPaused(true)}
@@ -102,7 +102,7 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             <h2 className="display mt-5 text-[clamp(2.25rem,5.5vw,4rem)] text-white drop-shadow">{slide.title}</h2>
             {slide.description && <p className="mt-4 max-w-md font-sans text-[14px] leading-relaxed text-white/85">{slide.description}</p>}
             {slide.ctaHref && (
-              <Link href={slide.ctaHref} className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors duration-300 hover:bg-rose-soft">
+              <Link href={slide.ctaHref} className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-colors duration-300 hover:bg-rose-soft">
                 {slide.ctaLabel || "Explore"}
                 <ArrowRight size={13} weight="light" className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -113,10 +113,10 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
       {count > 1 && (
         <>
-          <button type="button" onClick={() => go(-1)} aria-label="Previous slide" className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink">
+          <button type="button" onClick={() => go(-1)} aria-label="Previous slide" className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
             <CaretLeft size={16} weight="light" />
           </button>
-          <button type="button" onClick={() => go(1)} aria-label="Next slide" className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-ink">
+          <button type="button" onClick={() => go(1)} aria-label="Next slide" className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
             <CaretRight size={16} weight="light" />
           </button>
           <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">

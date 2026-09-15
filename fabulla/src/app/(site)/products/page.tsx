@@ -169,7 +169,7 @@ export default async function ProductsPage(props: { searchParams: Promise<Params
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-2">
                 {active.map((a) => (
-                  <Link key={a.label} href={href(current, a.clear)} className="inline-flex items-center gap-1.5 rounded-full border border-rose bg-rose-soft px-3.5 py-1.5 font-sans text-[11px] text-ink">
+                  <Link key={a.label} href={href(current, a.clear)} className="inline-flex items-center gap-1.5 rounded-full border border-rose bg-rose-soft px-3.5 py-1.5 font-sans text-[11px] text-on-rose">
                     {a.label}
                     <X size={11} />
                   </Link>
@@ -202,7 +202,7 @@ export default async function ProductsPage(props: { searchParams: Promise<Params
                     key={n}
                     href={`${href(current, {})}${href(current, {}).includes("?") ? "&" : "?"}page=${n}`}
                     aria-current={n === page ? "page" : undefined}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border font-mono text-[12px] ${n === page ? "border-rose bg-rose text-ink" : "border-line-2 text-ink-2 hover:border-rose"}`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full border font-mono text-[12px] ${n === page ? "border-rose bg-rose text-on-rose" : "border-line-2 text-ink-2 hover:border-rose"}`}
                   >
                     {n}
                   </Link>

@@ -12,7 +12,7 @@ export const inputCls =
   "w-full rounded-lg border border-line-2 bg-surface px-3.5 py-2.5 font-sans text-[13.5px] text-ink transition-colors placeholder:text-ink-3 focus:border-rose focus:outline-none disabled:opacity-50";
 export const labelCls = "block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-2";
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-rose px-5 py-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:bg-rose-soft disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full bg-rose px-5 py-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-on-rose transition-colors hover:bg-rose-soft disabled:opacity-50";
 export const btnOutline =
   "inline-flex items-center justify-center gap-2 rounded-full border border-line-2 px-5 py-2.5 font-sans text-[11px] uppercase tracking-[0.14em] text-ink transition-colors hover:border-rose hover:text-rose-ink disabled:opacity-50";
 export const btnQuiet =
@@ -131,12 +131,17 @@ export function Checkbox({ label, hint, ...props }: React.InputHTMLAttributes<HT
   );
 }
 
+/**
+ * Status tones. Green and amber are the one place the palette cannot help —
+ * there is no "success" in a jewelry brand system — so they are the one place
+ * that reaches for `dark:`.
+ */
 const tones = {
   neutral: "border-line-2 text-ink-2",
-  good: "border-emerald-300 bg-emerald-50 text-emerald-800",
-  warn: "border-amber-300 bg-amber-50 text-amber-800",
-  bad: "border-rose bg-rose-soft text-rose-ink",
-  ink: "border-ink bg-ink text-canvas",
+  good: "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-300",
+  warn: "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-300",
+  bad: "border-rose bg-rose-soft text-on-rose",
+  ink: "border-deep bg-deep text-on-deep",
 };
 
 export function Badge({ tone = "neutral", children }: { tone?: keyof typeof tones; children: ReactNode }) {

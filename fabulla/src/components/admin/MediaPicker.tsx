@@ -154,7 +154,7 @@ export default function MediaPicker({ name, value, multiple = false, accept = "i
                   <img src={url} alt="" className="h-full w-full object-cover" />
                 )}
                 {i === 0 && multiple && (
-                  <span className="absolute left-2 top-2 rounded-full bg-ink px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-canvas">
+                  <span className="absolute left-2 top-2 rounded-full bg-deep px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-on-deep">
                     Cover
                   </span>
                 )}

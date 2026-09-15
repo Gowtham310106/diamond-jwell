@@ -39,7 +39,7 @@ export default async function AboutPage() {
             <Reveal className="lg:col-span-5">
               <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
                 {about.image && <Image src={about.image} alt="From the studio" fill priority sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" />}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
             </Reveal>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin-session";
 import AdminNav from "@/components/admin/AdminNav";
+import ThemeToggle from "@/components/site/ThemeToggle";
 import { logout } from "../login/actions";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
                   Sign out
                 </button>
               </form>
+              <ThemeToggle showLabel={false} size={16} className="ml-auto text-ink-2 hover:text-rose-ink" />
             </div>
           </div>
         </div>

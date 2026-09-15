@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getSettings } from "@/lib/cms/repo";
+import { THEME_SCRIPT } from "@/lib/theme";
 
 /**
  * TYPE SYSTEM
@@ -18,8 +19,9 @@ import { getSettings } from "@/lib/cms/repo";
  * Geist replaces Inter Tight for body and UI: neutral, modern, and quiet
  * enough that it never competes with the display face.
  *
- * This root layout carries only fonts, metadata and the body. The storefront
- * chrome lives in (site)/layout.tsx and the admin panel in admin/(panel).
+ * This root layout carries only fonts, metadata, the theme bootstrap and the
+ * body. The storefront chrome lives in (site)/layout.tsx and the admin panel
+ * in admin/(panel).
  */
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -70,9 +72,19 @@ export default function RootLayout({
       // This attribute restores the snappy navigation behaviour while keeping
       // smooth scrolling for in-page anchors.
       data-scroll-behavior="smooth"
+      // The theme script sets data-theme on this element before React
+      // hydrates, which is exactly the mismatch this silences.
+      suppressHydrationWarning
       className={`${cormorant.variable} ${geist.variable} ${geistMono.variable}`}
     >
       <head>
+        {/*
+          Applies a stored light/dark choice before first paint, so a visitor
+          who picked dark never sees a flash of cream. A visitor who has not
+          chosen gets no attribute at all and the CSS media query follows
+          their system, which needs no JavaScript.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         {/*
           Scroll-reveal elements are server-rendered at opacity 0 and only
           become visible once Motion hydrates. If JavaScript is blocked, fails,

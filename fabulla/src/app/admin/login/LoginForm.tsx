@@ -35,7 +35,7 @@ export default function LoginForm({ next }: { next: string }) {
       </div>
 
       {state.error && (
-        <p role="alert" className="rounded-xl border border-rose bg-rose-soft px-4 py-3 font-sans text-[13px] leading-relaxed text-ink">
+        <p role="alert" className="rounded-xl border border-rose bg-rose-soft px-4 py-3 font-sans text-[13px] leading-relaxed text-on-rose">
           {state.error}
         </p>
       )}
@@ -43,7 +43,7 @@ export default function LoginForm({ next }: { next: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="flex w-full items-center justify-center gap-2.5 rounded-full bg-rose px-7 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors hover:bg-rose-soft disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2.5 rounded-full bg-rose px-7 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-colors hover:bg-rose-soft disabled:opacity-50"
       >
         {pending && <CircleNotch size={14} className="animate-spin" />}
         Sign in

@@ -133,8 +133,8 @@ sky-blue accent is replaced by Fabulla's own dusty rose (`#DDA3A3`).
 
 ### Locks
 
-- **Theme lock:** light, one mode, whole site. The footer's navy ground is the
-  page's own type colour used as one terminal block, not a theme inversion.
+- **Theme:** light and dark, both first class (see below). The footer is a
+  terminal dark block in either, not a theme inversion.
 - **Color lock:** one accent family. `--color-rose` is a fill and border colour
   only (2.05:1 on cream, so it can never carry text); accent text uses
   `--color-rose-ink`. The one exception is type set on an ink ground, as in the
@@ -145,20 +145,64 @@ sky-blue accent is replaced by Fabulla's own dusty rose (`#DDA3A3`).
 - **CTA lock:** one label per intent, defined in `src/lib/site.ts`, reused
   verbatim everywhere.
 
+### Dark mode
+
+Three states, and the default is the absence of a choice:
+
+| State | What is on `<html>` | Behaviour |
+|---|---|---|
+| Auto (default) | nothing | A CSS media query follows the OS, live, with no JavaScript |
+| Light | `data-theme="light"` | Outranks the media query |
+| Dark | `data-theme="dark"` | Outranks the media query |
+
+The toggle sits with Call and Book in the header, as a named three-up control
+in the mobile drawer, and in the admin sidebar. A stored choice is applied by
+a parser-blocking script in `<head>`, so there is no flash of the other theme;
+a visitor who has never chosen needs no JavaScript at all.
+
+**Writing components for both themes.** Use the tokens and you get dark for
+free — `canvas`, `canvas-2`, `surface`, `ink`, `ink-2`, `ink-3`, `line`,
+`line-2`, `gold`, `rose-ink` all flip. Three tokens deliberately do not,
+because they colour type against a *fill* rather than against the page:
+
+| Token | Use |
+|---|---|
+| `on-rose` | any type or icon on a `rose` / `rose-soft` fill |
+| `deep` + `on-deep` | the terminal dark ground: footer, notice strip, badges over photos, the highlight lightbox |
+
+`text-ink` on a rose button would turn near-white on pink the moment the theme
+flips, which is the one mistake this system makes easy to avoid. Scrims over
+photography use `black/NN` rather than a token, since a photograph is
+dark-on-dark in both themes. For the rare case a token cannot reach — the
+green and amber status tones in the admin are the only ones in the tree —
+there is a real `dark:` variant, wired to the same two selectors as the
+palette so the two can never disagree.
+
 ### Measured contrast (all pass WCAG AA)
 
-| Pair | Ratio |
-|---|---|
-| ink on canvas | 17.14 |
-| ink-2 on canvas | 6.14 |
-| ink-3 on canvas / canvas-2 / surface | 4.90 / 4.58 / 5.11 |
-| rose-ink on canvas / canvas-2 / surface | 4.98 / 4.66 / 5.19 |
-| ink on rose (primary button) | 8.37 |
+Text is measured against the darkest ground it sits on in each theme, which
+is what sets the floor.
+
+| Pair | Light | Dark |
+|---|---|---|
+| ink on canvas / canvas-2 | 17.14 / 16.02 | 16.57 / 15.34 |
+| ink-2 on canvas / canvas-2 | 6.14 / 5.74 | 10.15 / 9.39 |
+| ink-3 on canvas / canvas-2 | 4.90 / 4.58 | 7.54 / 6.98 |
+| rose-ink on canvas / canvas-2 | 4.98 / 4.66 | 10.02 / 9.27 |
+| on-rose on rose / rose-soft | 8.37 / 14.07 | 8.37 / 14.07 |
+| on-deep on deep | 17.14 | 19.33 |
+| footer labels (white/60, white/55) | 6.99 / 6.09 | 7.33 / 6.23 |
+
+Gold stays decorative in both (2.87 light, 8.78 dark) and never carries body
+copy. The footer's dimmest labels were below AA at white/45 and white/40
+before dark mode went in; lifting them fixed both themes at once.
 
 ### Accessibility and performance
 
 - Every scroll-revealed element carries `data-reveal`, and a `<noscript>`
   override in `layout.tsx` forces them visible.
+- The theme switch fades the ground rather than cutting, and that fade is
+  dropped under `prefers-reduced-motion` with everything else.
 - No `window.addEventListener("scroll")` anywhere; motion collapses under
   `prefers-reduced-motion`.
 - Mega-menu closes on Escape; hover opens only on real hover devices.

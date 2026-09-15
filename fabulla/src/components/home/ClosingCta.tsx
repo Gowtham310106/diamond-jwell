@@ -28,7 +28,7 @@ export default function ClosingCta({ settings }: { settings: Settings }) {
         </Reveal>
         <Reveal index={2}>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href={CTA.custom.href} className="group inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-all duration-300 hover:bg-rose-soft active:translate-y-[1px]">
+            <Link href={CTA.custom.href} className="group inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-all duration-300 hover:bg-rose-soft active:translate-y-[1px]">
               {CTA.custom.label}
               <ArrowRight size={13} weight="light" className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>

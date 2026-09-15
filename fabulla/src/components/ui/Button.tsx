@@ -13,9 +13,11 @@ const base =
   "disabled:pointer-events-none disabled:opacity-40";
 
 const variants: Record<Variant, string> = {
-  // Navy ink on the rose fill measures 8.37:1.
+  // Navy on the rose fill measures 8.37:1, and on the softer hover fill
+  // 14.07:1. Both are fixed values, so the button reads the same in either
+  // theme rather than turning white-on-pink when the lights go down.
   primary:
-    "bg-rose text-ink px-7 py-3.5 font-medium hover:bg-rose-soft",
+    "bg-rose text-on-rose px-7 py-3.5 font-medium hover:bg-rose-soft",
   // Navy ink on cream through a gold-grey stroke: 17.14:1.
   outline:
     "border border-line-2 text-ink px-7 py-3.5 hover:border-rose hover:text-rose-ink",

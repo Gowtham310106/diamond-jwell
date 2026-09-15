@@ -131,7 +131,7 @@ export default function EnquiryForm({
               type="button"
               onClick={() => setMode(k)}
               aria-pressed={mode === k || (k === "enquiry" && mode === "product")}
-              className={`rounded-full border px-4 py-2 font-sans text-[11px] uppercase tracking-[0.14em] transition-colors ${mode === k || (k === "enquiry" && mode === "product") ? "border-rose bg-rose text-ink" : "border-line-2 text-ink-2 hover:border-rose"}`}
+              className={`rounded-full border px-4 py-2 font-sans text-[11px] uppercase tracking-[0.14em] transition-colors ${mode === k || (k === "enquiry" && mode === "product") ? "border-rose bg-rose text-on-rose" : "border-line-2 text-ink-2 hover:border-rose"}`}
             >
               {label}
             </button>
@@ -196,13 +196,13 @@ export default function EnquiryForm({
       </div>
 
       {failure && (
-        <p role="alert" className="flex items-start gap-2 rounded-xl border border-rose bg-rose-soft px-4 py-3 font-sans text-[13px] text-ink">
+        <p role="alert" className="flex items-start gap-2 rounded-xl border border-rose bg-rose-soft px-4 py-3 font-sans text-[13px] text-on-rose">
           <WarningCircle size={16} className="mt-0.5 shrink-0 text-rose-ink" />
           {failure}
         </p>
       )}
 
-      <button type="submit" disabled={status === "sending"} className="inline-flex items-center gap-2.5 rounded-full bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink transition-colors hover:bg-rose-soft disabled:opacity-50">
+      <button type="submit" disabled={status === "sending"} className="inline-flex items-center gap-2.5 rounded-full bg-rose px-8 py-4 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-colors hover:bg-rose-soft disabled:opacity-50">
         {status === "sending" && <CircleNotch size={14} className="animate-spin" />}
         {KIND_COPY[mode].button}
       </button>

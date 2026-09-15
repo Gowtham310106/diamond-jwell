@@ -31,7 +31,7 @@ export default function CustomProcess({ steps }: { steps: ProcessStep[] }) {
                 {steps.map((step, i) => (
                   <motion.div key={step.id} className="absolute inset-0" initial={false} animate={{ opacity: active === i ? 1 : 0 }} transition={{ duration: reduce ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] }} aria-hidden={active !== i}>
                     {step.image && <Image src={step.image} alt={step.title} fill sizes="40vw" className="object-cover" />}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
                   </motion.div>
                 ))}
               </div>
@@ -51,11 +51,13 @@ export default function CustomProcess({ steps }: { steps: ProcessStep[] }) {
                 <motion.div key={step.id} onViewportEnter={() => setActive(i)} viewport={{ margin: "-45% 0px -45% 0px" }} className="border-t border-line py-10 last:border-b lg:py-14">
                   <div className="relative mb-7 aspect-[16/10] overflow-hidden rounded-2xl border border-line lg:hidden">
                     {step.image && <Image src={step.image} alt={step.title} fill sizes="100vw" className="object-cover" />}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   </div>
-                  <motion.h3 className="display text-[30px] lg:text-[38px]" animate={{ color: active === i ? "#0f172a" : "#6a6870" }} transition={{ duration: reduce ? 0 : 0.5 }}>
+                  <h3
+                    className={`display text-[30px] lg:text-[38px] ${reduce ? "" : "transition-colors duration-500"} ${active === i ? "text-ink" : "text-ink-3"}`}
+                  >
                     {step.title}
-                  </motion.h3>
+                  </h3>
                   <p className="mt-4 max-w-md font-sans text-[14.5px] leading-relaxed text-ink-2">{step.body}</p>
                 </motion.div>
               ))}

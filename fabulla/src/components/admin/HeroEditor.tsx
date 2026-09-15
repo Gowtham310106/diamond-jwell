@@ -64,7 +64,7 @@ export default function HeroEditor({ name, value }: { name: string; value: HeroS
                         key={k}
                         type="button"
                         onClick={() => patch(i, { kind: k, src: "" })}
-                        className={`rounded-full border px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${slide.kind === k ? "border-rose bg-rose-soft text-ink" : "border-line-2 text-ink-2"}`}
+                        className={`rounded-full border px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${slide.kind === k ? "border-rose bg-rose-soft text-on-rose" : "border-line-2 text-ink-2"}`}
                       >
                         {k}
                       </button>

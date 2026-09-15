@@ -4,59 +4,77 @@
    FABULLA DIAMONDS CO. - DESIGN SYSTEM
    ----------------------------------------------------------------------------
    Built on the UI/UX language of the diamond-jwellery reference build: cream
-   ground, navy type, gold rules, cinematic sticky intro, circular category nav
-   with mega-menu, and the Bluestone-style bento field.
+   ground, navy type, gold rules, circular category nav with mega-menu, and the
+   Bluestone-style bento field.
 
    ONE CHANGE FROM THE REFERENCE: its sky-blue accent (#0EA5E9) is replaced
    throughout by Fabulla's own dusty rose. Blue fights gold in a jewelry
    system, and the rose is the client's actual brand colour.
 
-   PAGE THEME LOCK: light, single mode, whole site. No section inverts.
+   THEME: light and dark, both first class. A visitor with no stored
+   preference follows their operating system; the toggle in the header stores
+   an explicit choice on <html data-theme>. Nothing else in the tree knows
+   which theme is on — every colour comes from the tokens below, so a
+   component written against them is correct in both.
+
+   THREE TOKENS DELIBERATELY DO NOT FLIP, because they colour type against a
+   fill rather than against the page:
+     --color-on-rose   type on a rose or rose-soft fill. Always dark navy.
+     --color-deep      the terminal dark ground: footer, notice strip, badges
+                       over photography, the highlight lightbox.
+     --color-on-deep   type on that ground. Always cream.
+   Using text-ink on a rose button would read as near-white on pink the moment
+   the theme flips, so: ANY rose or rose-soft fill carries text-on-rose, and
+   any deep ground carries text-on-deep. Scrims over photographs use black/NN
+   rather than a token, since a photograph is dark-on-dark in both themes.
 
    COLOR LOCK: one accent family (rose). --color-rose is a FILL and BORDER
    colour only: at 2.05:1 on cream it can never carry text. Accent text uses
-   --color-rose-ink. Gold is likewise decorative, used for rules and
-   large display marks, never for body copy.
+   --color-rose-ink, which flips (deep rose on light, pale rose on dark).
+   Gold is likewise decorative, used for rules and large display marks, never
+   for body copy.
 
    SHAPE LOCK: cards and media 16px, small chips and buttons 999px (pill),
    circular nav items full. That rule is followed everywhere.
 
-   MEASURED CONTRAST ON --color-canvas:
-     ink       #0f172a   17.1:1
-     ink-2     #5a5f6b    6.1:1
-     ink-3     #696e7a    4.9:1
-     rose-ink  #a45656    5.0:1
-     gold      #b3904e    2.9:1  decorative only
-
-   ink-3 and rose-ink are tuned against --color-canvas-2 (#f7f2ea), the
-   darkest of the three grounds, where they measure 4.58 and 4.66. Values a
-   step lighter cleared AA on the base cream but landed at 4.45 and 4.41 on
-   the banded sections, so the darker ground sets the floor.
+   MEASURED CONTRAST - LIGHT, on --color-canvas / --color-canvas-2:
+     ink       #0f172a   17.14 / 16.02      ink-2  #5a5f6b   6.14 /  5.74
+     ink-3     #696e7a    4.90 /  4.58      rose-ink #a45656  4.98 /  4.66
+   MEASURED CONTRAST - DARK, on --color-canvas / --color-canvas-2:
+     ink       #f2eee7   16.57 / 15.34      ink-2  #b6bdca  10.15 /  9.39
+     ink-3     #9aa3b3    7.54 /  6.98      rose-ink #e7adad 10.02 /  9.27
+   Every pair clears AA at body size in both themes. The darkest ground of
+   each theme sets the floor, which is why ink-3 is tuned there.
    ========================================================================== */
 
 @theme {
-  /* -- Ground & surfaces ---------------------------------------------------*/
+  /* -- Ground & surfaces (light) ------------------------------------------*/
   --color-canvas: #fcfaf7;
   --color-canvas-2: #f7f2ea;
   --color-surface: #ffffff;
 
-  /* -- Type ----------------------------------------------------------------*/
+  /* -- Type (light) -------------------------------------------------------*/
   --color-ink: #0f172a;
   --color-ink-2: #5a5f6b;
   --color-ink-3: #696e7a;
 
-  /* -- Rules ---------------------------------------------------------------*/
+  /* -- Rules (light) ------------------------------------------------------*/
   --color-line: #e8dfd3;
   --color-line-2: #d6c9b6;
 
-  /* -- Metal & accent ------------------------------------------------------*/
+  /* -- Metal & accent (light) ---------------------------------------------*/
   --color-gold: #b3904e;
   --color-gold-soft: #e4d5b7;
   --color-rose: #dda3a3;
   --color-rose-soft: #f3e0e0;
   --color-rose-ink: #a45656;
 
-  /* -- Families ------------------------------------------------------------*/
+  /* -- Fixed pairs. Identical in both themes; see the header note. --------*/
+  --color-on-rose: #0f172a;
+  --color-deep: #0f172a;
+  --color-on-deep: #fcfaf7;
+
+  /* -- Families -----------------------------------------------------------*/
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -64,8 +82,86 @@
   --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ----------------------------------------------------------------------------
+   THE DARK PALETTE, DEFINED ONCE
+   Held as --d-* constants so the two selectors that switch the theme (system
+   preference, and an explicit data-theme) map the same values and cannot
+   drift apart. Nothing reads --d-* directly.
+
+   It is the light system rotated rather than inverted: the navy that carries
+   type on cream becomes the ground, the cream that was the ground carries
+   type, and gold is lifted two steps so it still reads as metal at 15% size.
+   -------------------------------------------------------------------------- */
+:root {
+  --d-canvas: #0b0f18;
+  --d-canvas-2: #111827;
+  --d-surface: #161f30;
+  --d-ink: #f2eee7;
+  --d-ink-2: #b6bdca;
+  --d-ink-3: #9aa3b3;
+  --d-line: #222c3d;
+  --d-line-2: #37425a;
+  --d-gold: #d0aa64;
+  --d-gold-soft: #7d683a;
+  --d-rose-ink: #e7adad;
+  --d-deep: #05070d;
+}
+
+/* Unlayered and in source order: the light default, then the two selectors
+   that switch to dark. Tailwind's own tokens sit in @layer theme, and any
+   unlayered rule outranks every layer — which is exactly why this switch is
+   not in one. Put color-scheme in a layer and it loses to this default, the
+   page goes dark and the form controls, scrollbars and caret stay light. */
 :root {
   color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-canvas: var(--d-canvas);
+    --color-canvas-2: var(--d-canvas-2);
+    --color-surface: var(--d-surface);
+    --color-ink: var(--d-ink);
+    --color-ink-2: var(--d-ink-2);
+    --color-ink-3: var(--d-ink-3);
+    --color-line: var(--d-line);
+    --color-line-2: var(--d-line-2);
+    --color-gold: var(--d-gold);
+    --color-gold-soft: var(--d-gold-soft);
+    --color-rose-ink: var(--d-rose-ink);
+    --color-deep: var(--d-deep);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: var(--d-canvas);
+  --color-canvas-2: var(--d-canvas-2);
+  --color-surface: var(--d-surface);
+  --color-ink: var(--d-ink);
+  --color-ink-2: var(--d-ink-2);
+  --color-ink-3: var(--d-ink-3);
+  --color-line: var(--d-line);
+  --color-line-2: var(--d-line-2);
+  --color-gold: var(--d-gold);
+  --color-gold-soft: var(--d-gold-soft);
+  --color-rose-ink: var(--d-rose-ink);
+  --color-deep: var(--d-deep);
+}
+
+/* `dark:` for the few places a token cannot reach - a third-party palette, a
+   shadow that only makes sense on a light ground. Matches the same two cases
+   as the palette above, so `dark:` and the tokens can never disagree. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-theme="dark"], :root[data-theme="dark"] *) {
+    @slot;
+  }
 }
 
 @layer base {
@@ -88,11 +184,17 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     overflow-x: clip;
+    /* The switch reads as the lights changing rather than a hard cut. Short
+       enough that navigation never feels laggy, and dropped entirely under
+       prefers-reduced-motion by the block below. */
+    transition:
+      background-color 0.35s var(--ease-lux),
+      color 0.35s var(--ease-lux);
   }
 
   ::selection {
     background: var(--color-rose);
-    color: var(--color-ink);
+    color: var(--color-on-rose);
   }
 
   :focus-visible {

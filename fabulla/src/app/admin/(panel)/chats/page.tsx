@@ -24,10 +24,10 @@ export default async function ChatsAdmin(props: { searchParams: Promise<{ unansw
       />
       <Flash saved={saved} />
       <div className="mb-5 flex gap-2">
-        <Link href="/admin/chats" className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${!unanswered ? "border-rose bg-rose-soft text-ink" : "border-line-2 text-ink-2"}`}>
+        <Link href="/admin/chats" className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${!unanswered ? "border-rose bg-rose-soft text-on-rose" : "border-line-2 text-ink-2"}`}>
           All · {all.length}
         </Link>
-        <Link href="/admin/chats?unanswered=1" className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${unanswered ? "border-rose bg-rose-soft text-ink" : "border-line-2 text-ink-2"}`}>
+        <Link href="/admin/chats?unanswered=1" className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${unanswered ? "border-rose bg-rose-soft text-on-rose" : "border-line-2 text-ink-2"}`}>
           Unanswered · {all.filter((c) => c.unanswered).length}
         </Link>
       </div>
@@ -54,7 +54,7 @@ export default async function ChatsAdmin(props: { searchParams: Promise<{ unansw
                   <div className="border-t border-line px-5 py-4">
                     <ol className="space-y-3">
                       {c.turns.map((t, i) => (
-                        <li key={i} className={`max-w-[80%] rounded-xl px-4 py-2.5 font-sans text-[13px] leading-relaxed ${t.role === "user" ? "ml-auto bg-rose-soft text-ink" : "border border-line bg-surface text-ink-2"}`}>
+                        <li key={i} className={`max-w-[80%] rounded-xl px-4 py-2.5 font-sans text-[13px] leading-relaxed ${t.role === "user" ? "ml-auto bg-rose-soft text-on-rose" : "border border-line bg-surface text-ink-2"}`}>
                           {t.content}
                         </li>
                       ))}

@@ -27,7 +27,7 @@ export default async function InboxAdmin(props: { searchParams: Promise<{ status
           <Link
             key={value}
             href={value ? `/admin/inbox?status=${value}` : "/admin/inbox"}
-            className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${status === value ? "border-rose bg-rose-soft text-ink" : "border-line-2 text-ink-2 hover:border-rose"}`}
+            className={`rounded-full border px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] ${status === value ? "border-rose bg-rose-soft text-on-rose" : "border-line-2 text-ink-2 hover:border-rose"}`}
           >
             {label} · {value ? all.filter((e) => e.status === value).length : all.length}
           </Link>

@@ -37,8 +37,8 @@ export default async function CustomPage() {
       <header className="relative isolate border-b border-line">
         <div className="absolute inset-0 -z-10">
           {heroImage && <Image src={heroImage} alt="" fill priority quality={70} sizes="100vw" className="object-cover" />}
-          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/78 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/45" />
         </div>
         <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 lg:px-10 lg:pb-32 lg:pt-32">
           <div className="max-w-2xl">

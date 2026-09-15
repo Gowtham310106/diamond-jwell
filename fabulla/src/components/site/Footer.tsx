@@ -4,18 +4,19 @@ import type { Category, Settings } from "@/lib/cms/types";
 import { igHref, mailHref, telHref, waHref } from "@/lib/site";
 
 /**
- * Footer. Deep navy against the cream page, the way the reference build closes.
+ * Footer. A deep terminal block, the way the reference build closes.
  *
- * This is not a theme inversion: navy is the page's own type colour used as a
- * ground for one terminal block, which is a long-standing convention for a
- * light site's footer. The body of the site stays light throughout.
+ * In light this is the page's own navy used as a ground, a long-standing
+ * convention for a light site's footer. In dark the ground sits just below
+ * the page and the hairline above it does the separating, since two
+ * near-blacks cannot.
  */
 export default function Footer({ settings, categories }: { settings: Settings; categories: Category[] }) {
   const year = new Date().getFullYear();
   const { brand, contact } = settings;
 
   return (
-    <footer className="bg-ink pb-8 pt-16 text-canvas">
+    <footer className="border-line bg-deep pb-8 pt-16 text-on-deep dark:border-t">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 border-b border-white/10 pb-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-5 lg:col-span-2">
@@ -53,7 +54,7 @@ export default function Footer({ settings, categories }: { settings: Settings; c
           </div>
 
           <div>
-            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/45">Shop</h2>
+            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/60">Shop</h2>
             <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-2.5 lg:grid-cols-1">
               {categories.map((c) => (
                 <li key={c._id}>
@@ -66,7 +67,7 @@ export default function Footer({ settings, categories }: { settings: Settings; c
           </div>
 
           <div>
-            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/45">Studio</h2>
+            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/60">Studio</h2>
             <ul className="mt-5 space-y-2.5">
               {[
                 { label: "Custom work", href: "/custom" },
@@ -85,7 +86,7 @@ export default function Footer({ settings, categories }: { settings: Settings; c
           </div>
 
           <div>
-            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/45">Visit</h2>
+            <h2 className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-white/60">Visit</h2>
             <p className="mt-5 font-sans text-[12.5px] leading-relaxed text-white/70">{contact.showroom}</p>
             <p className="mt-2 font-sans text-[12.5px] leading-relaxed text-white/70">{contact.hours}</p>
             <Link href="/contact?kind=appointment" className="mt-5 inline-block rounded-full border border-white/25 px-5 py-2.5 font-sans text-[10.5px] uppercase tracking-[0.16em] text-white transition-colors hover:border-rose hover:text-rose">
@@ -95,14 +96,14 @@ export default function Footer({ settings, categories }: { settings: Settings; c
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 pt-7 sm:flex-row">
-          <p className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/40">
+          <p className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/55">
             © {year} {brand.name}
           </p>
           <div className="flex gap-7">
-            <Link href="/privacy" className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/75">
+            <Link href="/privacy" className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/55 transition-colors hover:text-white">
               Privacy
             </Link>
-            <Link href="/terms" className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/75">
+            <Link href="/terms" className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-white/55 transition-colors hover:text-white">
               Terms
             </Link>
           </div>

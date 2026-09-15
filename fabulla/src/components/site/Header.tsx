@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { MagnifyingGlass, Phone, CalendarBlank, List, X } from "@phosphor-icons/react";
 import CategoryNav, { type NavEntry } from "./CategoryNav";
+import ThemeToggle from "./ThemeToggle";
 import type { Category, Settings } from "@/lib/cms/types";
 import { CTA, telHref } from "@/lib/site";
 
@@ -79,7 +80,7 @@ export default function Header({ settings, categories }: { settings: Settings; c
               animate={{ height: 32, opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden bg-ink text-canvas"
+              className="overflow-hidden bg-deep text-on-deep"
             >
               <div className="mx-auto flex h-8 max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
                 <p className="truncate whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.2em]">{settings.notice}</p>
@@ -133,6 +134,7 @@ export default function Header({ settings, categories }: { settings: Settings; c
                 <CalendarBlank size={21} weight="light" />
                 <span className="mt-0.5 hidden font-mono text-[8px] uppercase tracking-[0.16em] sm:block">Book</span>
               </Link>
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -150,7 +152,7 @@ export default function Header({ settings, categories }: { settings: Settings; c
       <AnimatePresence>
         {mobileOpen && (
           <motion.div className="fixed inset-0 z-[3000] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-            <div className="absolute inset-0 bg-ink/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+            <div className="absolute inset-0 bg-deep/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
             <motion.div
               className="absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col overflow-y-auto bg-canvas px-6 pb-10 pt-5"
               initial={{ x: "-100%" }}
@@ -189,8 +191,10 @@ export default function Header({ settings, categories }: { settings: Settings; c
                 ))}
               </nav>
 
+              <ThemeToggle variant="segmented" className="mt-8" />
+
               <div className="mt-auto space-y-3 pt-8">
-                <Link href={CTA.custom.href} onClick={() => setMobileOpen(false)} className="block rounded-full bg-rose px-6 py-3.5 text-center font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink">
+                <Link href={CTA.custom.href} onClick={() => setMobileOpen(false)} className="block rounded-full bg-rose px-6 py-3.5 text-center font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose">
                   {CTA.custom.label}
                 </Link>
                 <a href={telHref(settings.contact.phone)} className="block text-center font-mono text-[11px] tracking-[0.14em] text-ink-3">

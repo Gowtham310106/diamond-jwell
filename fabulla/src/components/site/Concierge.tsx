@@ -300,7 +300,7 @@ export default function Concierge({ copy, reveal = "after-slides" }: Props) {
                     type="submit"
                     disabled={!draft.trim() || sending}
                     aria-label="Send"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose text-ink transition-all duration-300 hover:bg-rose-soft disabled:pointer-events-none disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose text-on-rose transition-all duration-300 hover:bg-rose-soft disabled:pointer-events-none disabled:opacity-40"
                   >
                     <ArrowUp size={16} weight="bold" />
                   </button>
@@ -347,7 +347,7 @@ export default function Concierge({ copy, reveal = "after-slides" }: Props) {
 function Bubble({ entry }: { entry: Entry }) {
   if (entry.role === "user") {
     return (
-      <p className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-rose px-4 py-3 font-sans text-[13.5px] leading-relaxed text-ink">
+      <p className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-rose px-4 py-3 font-sans text-[13.5px] leading-relaxed text-on-rose">
         {entry.content}
       </p>
     );
