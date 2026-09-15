@@ -70,6 +70,7 @@ export default async function HomepageAdmin(props: { searchParams: Promise<{ sav
           <div className="grid gap-6 sm:grid-cols-2">
             <MediaPicker name="craftsmanship_image" value={s.craftsmanship.image ? [s.craftsmanship.image] : []} folder="pages" label="Craftsmanship section image" />
             <MediaPicker name="about_image" value={s.about.image ? [s.about.image] : []} folder="pages" label="About page image" />
+            <MediaPicker name="nav_all_image" value={s.nav?.allImage ? [s.nav.allImage] : []} folder="pages" label="All Jewelry nav circle" />
           </div>
         </Card>
 

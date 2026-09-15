@@ -62,6 +62,7 @@ export async function saveHomepage(form: FormData) {
     },
     craftsmanship: { image: urls(form, "craftsmanship_image")[0] ?? current.craftsmanship.image },
     about: { image: urls(form, "about_image")[0] ?? current.about.image },
+    nav: { allImage: urls(form, "nav_all_image")[0] ?? current.nav.allImage },
   });
 
   redirect("/admin/homepage?saved=1");

@@ -479,6 +479,9 @@ const settings: Settings = {
   ],
   craftsmanship: { image: img("bracelet-cuban-crown-stones.jpg") },
   about: { image: img("bracelet-cuban-crown-stones.jpg") },
+  // Watches, bracelets and pendants in one frame: the only plate that reads as
+  // the whole catalogue rather than one category.
+  nav: { allImage: img("tennis-bracelet-watch-case.jpg") },
   assurances: [
     { id: "a1", title: "GIA & IGI certified", detail: "Graded, every stone" },
     { id: "a2", title: "Natural or lab-grown", detail: "Equal expertise in both" },

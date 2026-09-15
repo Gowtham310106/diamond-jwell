@@ -183,6 +183,12 @@ export type Settings = Doc & {
   process: ProcessStep[];
   craftsmanship: { image: string };
   about: { image: string };
+  /**
+   * The "All Jewelry" nav circle. It is a synthetic entry with no category of
+   * its own, so without this it borrows the first category's plate and sits
+   * next to an identical circle.
+   */
+  nav: { allImage: string };
   assurances: Assurance[];
   testimonials: Testimonial[];
   highlights: Highlight[];

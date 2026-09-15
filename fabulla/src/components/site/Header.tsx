@@ -32,7 +32,7 @@ export default function Header({ settings, categories }: { settings: Settings; c
     {
       id: "all",
       name: "All Jewelry",
-      image: categories[0]?.image ?? "",
+      image: settings.nav?.allImage || categories[0]?.image || "",
       bannerImage: settings.hero[0]?.kind === "image" ? settings.hero[0].src : categories[0]?.bannerImage ?? "",
       bannerTitle: "Every piece in the studio, natural and lab-grown.",
       bannerHref: "/products",
