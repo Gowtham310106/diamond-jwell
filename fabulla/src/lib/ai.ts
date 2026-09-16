@@ -56,6 +56,39 @@ export async function chat(input: ChatInput): Promise<string | null> {
   return response.text?.trim() || "";
 }
 
+/**
+ * Gemini failures arrive as a wall of JSON — the whole error envelope, the
+ * quota name, a help link. That is useful in a server log and useless in an
+ * admin panel, where the only question is whether to wait, fix the key, or
+ * change the prompt. Upstream errors become one sentence; anything we threw
+ * ourselves is already a sentence and passes straight through.
+ */
+export function aiErrorMessage(error: unknown): { message: string; status: number } {
+  const raw = error instanceof Error ? error.message : String(error);
+  const code = Number(
+    (error as { status?: number })?.status ?? raw.match(/"code"\s*:\s*(\d{3})/)?.[1] ?? raw.match(/status:?\s*(\d{3})/i)?.[1] ?? 0
+  );
+  const tag = raw.match(/RESOURCE_EXHAUSTED|PERMISSION_DENIED|UNAUTHENTICATED|UNAVAILABLE|INVALID_ARGUMENT/)?.[0];
+  // A bad key is reported as 400 INVALID_ARGUMENT with the real reason buried
+  // in details[], so it has to be looked for before the generic 400 branch.
+  const badKey = /API_KEY_INVALID|API key not valid/i.test(raw);
+
+  if (code === 429 || tag === "RESOURCE_EXHAUSTED") {
+    return { message: "Out of AI credits. The Gemini quota is used up — it resets, or add billing to the key.", status: 429 };
+  }
+  if (badKey || code === 401 || code === 403 || tag === "PERMISSION_DENIED" || tag === "UNAUTHENTICATED") {
+    return { message: "The Gemini key was rejected. Check GEMINI_API_KEY.", status: 502 };
+  }
+  if (code === 503 || tag === "UNAVAILABLE") {
+    return { message: "Gemini is busy right now. Try again in a minute.", status: 503 };
+  }
+  if (code === 400 || tag === "INVALID_ARGUMENT") {
+    return { message: "Gemini rejected the request. Try a different preset or a shorter prompt.", status: 502 };
+  }
+  // Ours: "Could not fetch the source image (400)." and the like.
+  return { message: raw.slice(0, 200) || "Image generation failed.", status: 502 };
+}
+
 export type ImageEdit = {
   /** Source photo. */
   image: { data: Buffer; mimeType: string };

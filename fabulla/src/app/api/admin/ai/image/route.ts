@@ -11,7 +11,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
-import { aiConfigured, editImage } from "@/lib/ai";
+import { aiConfigured, aiErrorMessage, editImage } from "@/lib/ai";
 import { FIDELITY, FINISH, PRESETS, PRESET_ASPECT } from "@/lib/ai-prompts";
 import { upsert } from "@/lib/cms/repo";
 import type { MediaAsset } from "@/lib/cms/types";
@@ -77,8 +77,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(asset);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Image generation failed.";
-    console.error("[ai/image]", message);
-    return NextResponse.json({ error: message }, { status: 502 });
+    // Full envelope to the server log, one sentence to the panel.
+    console.error("[ai/image]", error);
+    const { message, status } = aiErrorMessage(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

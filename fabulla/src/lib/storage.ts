@@ -121,11 +121,32 @@ export async function putObject(key: string, body: Buffer, contentType: string):
   return `/uploads/${key}`;
 }
 
+/**
+ * The S3 API endpoint signs every request; an unauthenticated GET there comes
+ * back 400 InvalidArgument. It is what the Cloudflare dashboard shows next to
+ * the bucket, so it gets pasted into R2_PUBLIC_URL by mistake — and then reads
+ * fail everywhere while writes keep working, because writes are signed.
+ */
+function apiEndpointMistake(publicUrl: string): boolean {
+  try {
+    return new URL(publicUrl).hostname.endsWith(".r2.cloudflarestorage.com");
+  } catch {
+    return false;
+  }
+}
+
 export async function pingStorage(): Promise<{ ok: boolean; mode: StorageMode; detail: string }> {
   const config = r2Config();
   if (!config) return { ok: true, mode: "local", detail: ".data/uploads on the server disk (set R2_* for Cloudflare)" };
   try {
     await s3(config).send(new HeadBucketCommand({ Bucket: config.bucket }));
+    if (apiEndpointMistake(config.publicUrl)) {
+      return {
+        ok: false,
+        mode: "r2",
+        detail: `Uploads will succeed and then fail to load. R2_PUBLIC_URL is "${config.publicUrl}", which is the S3 API endpoint: it needs a signed request, so the browser and the "enhance" button both get 400 back. Use the bucket's public r2.dev URL (https://pub-….r2.dev) or a custom domain bound to the bucket.`,
+      };
+    }
     return { ok: true, mode: "r2", detail: `${config.bucket} → ${config.publicUrl}` };
   } catch (error) {
     return { ok: false, mode: "r2", detail: error instanceof Error ? error.message : String(error) };
