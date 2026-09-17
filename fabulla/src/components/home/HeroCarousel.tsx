@@ -90,43 +90,20 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               <source src={slide.src} />
             </video>
           ) : slide.src ? (
-            <>
-              {/* Desktop / Tablet: Wide 16:9 banner */}
-              <div className="hidden sm:block absolute inset-0">
-                <Image
-                  src={slide.src}
-                  alt=""
-                  fill
-                  priority={index === 0}
-                  quality={90}
-                  sizes="100vw"
-                  className="object-cover object-right lg:object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              </div>
-
-              {/* Mobile: 1:1 clean product shot displayed prominently on the right-bottom */}
-              <div className="block sm:hidden absolute inset-0 bg-deep overflow-hidden">
-                <div className="absolute -right-4 bottom-8 h-[65%] w-[72%] max-w-[280px] pointer-events-none">
-                  <Image
-                    src={
-                      slide.mobileSrc ||
-                      slide.src.replace(/hero\.(png|webp)$/i, "front-white.$1")
-                    }
-                    alt=""
-                    fill
-                    priority={index === 0}
-                    quality={90}
-                    sizes="280px"
-                    className="object-contain object-center drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)]"
-                  />
-                </div>
-                {/* Contrast overlays to ensure copy legibility on small screens */}
-                <div className="absolute inset-0 bg-gradient-to-r from-deep via-deep/85 to-transparent w-[80%]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-deep via-transparent to-transparent h-full" />
-              </div>
-            </>
+            <div className="absolute inset-0">
+              <Image
+                src={slide.src}
+                alt=""
+                fill
+                priority={index === 0}
+                quality={95}
+                sizes="100vw"
+                className="object-cover object-right sm:object-right lg:object-center"
+              />
+              {/* Reduced, minimal shade: only a subtle soft veil behind text on the left, leaving the jewelry on the right completely unshaded and bright */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent w-full sm:w-[60%] lg:w-[50%] pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-deep/40 to-transparent pointer-events-none" />
+            </div>
           ) : null}
         </motion.div>
       </AnimatePresence>
