@@ -18,7 +18,7 @@ import type {
 
 const T = "2026-09-16T00:00:00.000Z";
 const stamp = { createdAt: T, updatedAt: T };
-const pImg = (folder: string, shot: string) => `/images/products/${folder}/${shot}.png`;
+const pImg = (folder: string, shot: string) => `/images/products/${folder}/${shot}.webp`;
 
 /* ------------------------------------------------------------------------ */
 /* Categories                                                                */

@@ -23,12 +23,16 @@ const INTERVAL = 6000;
 export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const isFirstMount = useRef(true);
   const touchStartX = useRef<number | null>(null);
   const reduce = useReducedMotion();
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const count = slides.length;
-  const go = useCallback((dir: 1 | -1) => setIndex((i) => (i + dir + count) % count), [count]);
+  const go = useCallback((dir: 1 | -1) => {
+    isFirstMount.current = false;
+    setIndex((i) => (i + dir + count) % count);
+  }, [count]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -44,6 +48,11 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   };
 
   useEffect(() => {
+    // After first mount, enable smooth transitions for slide changes
+    isFirstMount.current = false;
+  }, []);
+
+  useEffect(() => {
     if (reduce || paused || count < 2) return;
     timer.current = setInterval(() => go(1), INTERVAL);
     return () => {
@@ -53,6 +62,7 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   if (count === 0) return null;
   const slide = slides[index] ?? slides[0];
+  const nextSlide = slides[(index + 1) % count];
 
   return (
     <section
@@ -70,10 +80,10 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         <motion.div
           key={slide.id}
           className="absolute inset-0"
-          initial={reduce ? false : { opacity: 0 }}
+          initial={isFirstMount.current || reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: reduce ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: reduce ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }}
         >
           {slide.kind === "video" && slide.src ? (
             <video
@@ -96,7 +106,8 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 alt=""
                 fill
                 priority={index === 0}
-                quality={95}
+                loading={index === 0 ? "eager" : "lazy"}
+                quality={90}
                 sizes="100vw"
                 className="object-cover object-right sm:object-right lg:object-center"
               />
@@ -107,6 +118,11 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           ) : null}
         </motion.div>
       </AnimatePresence>
+
+      {/* Preload upcoming slide in background */}
+      {nextSlide?.src && (
+        <link rel="prefetch" href={nextSlide.src} as="image" />
+      )}
 
       <div className="relative mx-auto flex h-full max-w-[1400px] flex-col justify-center px-5 sm:px-8 lg:px-10">
         <AnimatePresence mode="wait">
