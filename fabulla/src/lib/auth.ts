@@ -76,8 +76,8 @@ async function hmacKey(): Promise<CryptoKey> {
   );
 }
 
-export async function signSession(payload: Omit<Session, "exp">): Promise<string> {
-  const session: Session = { ...payload, exp: Date.now() + SESSION_DAYS * 86_400_000 };
+export async function signSession(payload: Omit<Session, "exp">, days = SESSION_DAYS): Promise<string> {
+  const session: Session = { ...payload, exp: Date.now() + days * 86_400_000 };
   const body = b64url(new TextEncoder().encode(JSON.stringify(session)));
   const sig = await crypto.subtle.sign("HMAC", await hmacKey(), new TextEncoder().encode(body));
   return `${body}.${b64url(new Uint8Array(sig))}`;
@@ -103,12 +103,13 @@ export async function verifySession(token: string | undefined): Promise<Session 
   }
 }
 
-export function cookieOptions() {
+export function cookieOptions(remember = true) {
+  const days = remember ? 30 : 1;
   return {
     httpOnly: true,
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_DAYS * 86_400,
+    maxAge: days * 86_400,
   };
 }

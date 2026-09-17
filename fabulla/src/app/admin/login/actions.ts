@@ -17,6 +17,7 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
   const next = String(form.get("next") ?? "/admin");
+  const remember = form.get("remember") === "on" || form.get("remember") === "true";
 
   if (!email || !password) return { error: "Email and password, please." };
 
@@ -48,13 +49,13 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
 
   let token: string;
   try {
-    token = await signSession({ sub: admin._id, email: admin.email, name: admin.name });
+    token = await signSession({ sub: admin._id, email: admin.email, name: admin.name }, remember ? 30 : 1);
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not start a session." };
   }
 
   const jar = await cookies();
-  jar.set(SESSION_COOKIE, token, cookieOptions());
+  jar.set(SESSION_COOKIE, token, cookieOptions(remember));
   redirect(next.startsWith("/admin") ? next : "/admin");
 }
 
