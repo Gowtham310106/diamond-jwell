@@ -91,6 +91,8 @@ export type HeroSlide = {
   id: string;
   kind: "image" | "video";
   src: string;
+  /** Mobile image: on narrow viewports, clean 1:1 product shot is displayed instead of the wide banner. */
+  mobileSrc?: string;
   /** Video only: still shown before the clip paints. */
   poster: string;
   eyebrow: string;
