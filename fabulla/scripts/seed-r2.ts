@@ -30,6 +30,7 @@ async function main() {
   const accessKeyId = env.R2_ACCESS_KEY_ID;
   const secretAccessKey = env.R2_SECRET_ACCESS_KEY;
   const bucket = env.R2_BUCKET || "fabulla";
+  const publicUrl = env.R2_PUBLIC_URL?.replace(/\/+$/, "");
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
     console.error("Missing R2 credentials in .env.local");
@@ -42,15 +43,17 @@ async function main() {
     credentials: { accessKeyId, secretAccessKey },
   });
 
-  const srcDir = "c:/Users/gowtham/Downloads/Fabulla-Multi-Angle-Hero-Package/Fabulla-Multi-Angle-Hero-Package/products";
+  const srcDir = path.join(process.cwd(), "public", "images", "products");
   if (!fs.existsSync(srcDir)) {
-    console.error("Source product directory not found:", srcDir);
+    console.error("Product images directory not found:", srcDir);
     process.exit(1);
   }
 
-  console.log(`Uploading all product images to Cloudflare R2 bucket "${bucket}"...`);
+  console.log(`=== Uploading Catalog Images to Cloudflare R2 Bucket "${bucket}" ===`);
+  console.log(`Public URL: ${publicUrl}`);
+
   const folders = fs.readdirSync(srcDir);
-  let totalUploaded = 0;
+  const queue: { folder: string; file: string; filePath: string; contentType: string }[] = [];
 
   for (const folder of folders) {
     const folderPath = path.join(srcDir, folder);
@@ -60,25 +63,57 @@ async function main() {
     for (const file of files) {
       const ext = path.extname(file).toLowerCase();
       const contentType = MIME_TYPES[ext] || "application/octet-stream";
-      const filePath = path.join(folderPath, file);
-      const buffer = fs.readFileSync(filePath);
-      const key = `products/${folder}/${file}`;
-
-      process.stdout.write(`Uploading ${key} (${(buffer.length / 1024).toFixed(1)} KB)... `);
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: key,
-          Body: buffer,
-          ContentType: contentType,
-        })
-      );
-      console.log("✓");
-      totalUploaded++;
+      queue.push({ folder, file, filePath: path.join(folderPath, file), contentType });
     }
   }
 
-  console.log(`\nSuccessfully uploaded ${totalUploaded} images straight to Cloudflare R2!`);
+  console.log(`Found ${queue.length} images to upload.`);
+  let completed = 0;
+
+  async function uploadWithRetry(cmd: PutObjectCommand, maxRetries = 3): Promise<void> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await s3.send(cmd);
+        return;
+      } catch (err: any) {
+        if (attempt === maxRetries) throw err;
+        await new Promise((res) => setTimeout(res, 1000 * attempt));
+      }
+    }
+  }
+
+  // Upload in concurrent batches of 4
+  const BATCH_SIZE = 4;
+  for (let i = 0; i < queue.length; i += BATCH_SIZE) {
+    const batch = queue.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async ({ folder, file, filePath, contentType }) => {
+        const buffer = fs.readFileSync(filePath);
+        const key = `images/products/${folder}/${file}`;
+
+        await uploadWithRetry(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: key,
+            Body: buffer,
+            ContentType: contentType,
+          })
+        );
+        completed++;
+        console.log(`[${completed}/${queue.length}] ✓ Uploaded ${folder}/${file} (${(buffer.length / 1024).toFixed(1)} KB)`);
+      })
+    );
+  }
+
+  console.log(`\n✓ All ${completed} images successfully synced to Cloudflare R2!`);
+  if (publicUrl) {
+    const sample = `${publicUrl}/images/products/01-round-halo-ring/front-white.png`;
+    console.log(`Testing sample public read: ${sample}`);
+    const res = await fetch(sample);
+    console.log(`Sample fetch status: ${res.status} ${res.statusText}`);
+  }
 }
 
 main().catch(console.error);
+
+
