@@ -23,11 +23,25 @@ const INTERVAL = 6000;
 export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
   const reduce = useReducedMotion();
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const count = slides.length;
   const go = useCallback((dir: 1 | -1) => setIndex((i) => (i + dir + count) % count), [count]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diff) > 45) {
+      go(diff > 0 ? -1 : 1);
+    }
+    touchStartX.current = null;
+  };
 
   useEffect(() => {
     if (reduce || paused || count < 2) return;
@@ -42,13 +56,15 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section
-      className="relative h-[440px] w-full overflow-hidden border-b border-line bg-deep sm:h-[520px] lg:h-[600px]"
+      className="relative h-[480px] w-full overflow-hidden border-b border-line bg-deep sm:h-[520px] lg:h-[600px]"
       aria-roledescription="carousel"
       aria-label="Featured"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <AnimatePresence initial={false} mode="sync">
         <motion.div
@@ -90,22 +106,25 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               </div>
 
-              {/* Mobile: 1:1 product shot so the full piece is clearly visible on narrow viewports */}
-              <div className="block sm:hidden absolute inset-0 bg-deep">
-                <Image
-                  src={
-                    slide.mobileSrc ||
-                    slide.src.replace(/hero\.(png|webp)$/i, "front-white.$1")
-                  }
-                  alt=""
-                  fill
-                  priority={index === 0}
-                  quality={90}
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  className="object-contain object-right-bottom scale-90 translate-y-6 opacity-75"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-deep via-deep/60 to-deep/40" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
+              {/* Mobile: 1:1 clean product shot displayed prominently on the right-bottom */}
+              <div className="block sm:hidden absolute inset-0 bg-deep overflow-hidden">
+                <div className="absolute -right-4 bottom-8 h-[65%] w-[72%] max-w-[280px] pointer-events-none">
+                  <Image
+                    src={
+                      slide.mobileSrc ||
+                      slide.src.replace(/hero\.(png|webp)$/i, "front-white.$1")
+                    }
+                    alt=""
+                    fill
+                    priority={index === 0}
+                    quality={90}
+                    sizes="280px"
+                    className="object-contain object-center drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)]"
+                  />
+                </div>
+                {/* Contrast overlays to ensure copy legibility on small screens */}
+                <div className="absolute inset-0 bg-gradient-to-r from-deep via-deep/85 to-transparent w-[80%]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-deep via-transparent to-transparent h-full" />
               </div>
             </>
           ) : null}
@@ -116,7 +135,7 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
-            className="max-w-xl"
+            className="max-w-xl pr-6 sm:pr-0"
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduce ? undefined : { opacity: 0, y: -12 }}
@@ -128,10 +147,10 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 {slide.eyebrow}
               </span>
             )}
-            <h2 className="display mt-5 text-[clamp(2.25rem,5.5vw,4rem)] text-white drop-shadow">{slide.title}</h2>
-            {slide.description && <p className="mt-4 max-w-md font-sans text-[14px] leading-relaxed text-white/85">{slide.description}</p>}
+            <h2 className="display mt-4 text-[clamp(2rem,5vw,4rem)] text-white drop-shadow leading-[1.1]">{slide.title}</h2>
+            {slide.description && <p className="mt-3 max-w-xs sm:max-w-md font-sans text-[13px] sm:text-[14px] leading-relaxed text-white/85">{slide.description}</p>}
             {slide.ctaHref && (
-              <Link href={slide.ctaHref} className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-colors duration-300 hover:bg-rose-soft">
+              <Link href={slide.ctaHref} className="group mt-6 sm:mt-8 inline-flex items-center gap-2.5 rounded-full bg-rose px-6 sm:px-7 py-2.5 sm:py-3 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-on-rose transition-colors duration-300 hover:bg-rose-soft">
                 {slide.ctaLabel || "Explore"}
                 <ArrowRight size={13} weight="light" className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -142,13 +161,13 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
       {count > 1 && (
         <>
-          <button type="button" onClick={() => go(-1)} aria-label="Previous slide" className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
+          <button type="button" onClick={() => go(-1)} aria-label="Previous slide" className="hidden sm:flex absolute left-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
             <CaretLeft size={16} weight="light" />
           </button>
-          <button type="button" onClick={() => go(1)} aria-label="Next slide" className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
+          <button type="button" onClick={() => go(1)} aria-label="Next slide" className="hidden sm:flex absolute right-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:border-rose hover:bg-rose hover:text-on-rose">
             <CaretRight size={16} weight="light" />
           </button>
-          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
             {slides.map((b, i) => (
               <button
                 key={b.id}
