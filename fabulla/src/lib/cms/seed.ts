@@ -2,12 +2,8 @@
  * Seed content.
  *
  * What an empty collection is filled with on first read: the studio's real
- * catalog, photography and copy, exactly as the static site shipped them. Ids
- * are deterministic (`cat_rings`, `prod_halo-engagement-ring`) so a second
- * environment seeded from the same code lines up with the first.
- *
- * Nothing here is edited by hand after launch — it is the starting state the
- * admin panel takes over from.
+ * catalog, photography and copy. Ids are deterministic (`cat_rings`,
+ * `prod_round-halo-engagement-ring`) so environments line up.
  */
 
 import type {
@@ -20,9 +16,9 @@ import type {
   Settings,
 } from "./types";
 
-const T = "2026-09-14T00:00:00.000Z";
+const T = "2026-09-16T00:00:00.000Z";
 const stamp = { createdAt: T, updatedAt: T };
-const img = (file: string) => `/images/${file}`;
+const pImg = (folder: string, shot: string) => `/images/products/${folder}/${shot}.png`;
 
 /* ------------------------------------------------------------------------ */
 /* Categories                                                                */
@@ -34,14 +30,14 @@ const categories: Category[] = [
     name: "Rings",
     slug: "rings",
     description: "Solitaires, halos and fully custom engagement rings.",
-    image: img("ring-emerald-cut-pave.jpg"),
-    bannerImage: img("ring-round-halo-pave.jpg"),
+    image: pImg("05-emerald-cut-ring", "front-white"),
+    bannerImage: pImg("01-round-halo-ring", "front-white"),
     bannerTitle: "Engagement rings, built around your stone.",
     children: [
       { name: "All rings", href: "/products?category=rings" },
       { name: "Solitaire", href: "/products/radiant-cut-solitaire-ring" },
-      { name: "Halo", href: "/products/halo-engagement-ring" },
-      { name: "Custom engagement", href: "/products/custom-engagement-ring" },
+      { name: "Round Halo", href: "/products/round-halo-engagement-ring" },
+      { name: "Emerald Cut", href: "/products/emerald-cut-double-pave-ring" },
       { name: "Design your own", href: "/custom" },
       { name: "Book a consultation", href: "/contact" },
     ],
@@ -55,14 +51,16 @@ const categories: Category[] = [
     name: "Chains",
     slug: "chains",
     description: "Solid links, soldered and stress-tested by hand.",
-    image: img("chain-cuban-white-gold.jpg"),
-    bannerImage: img("chain-cuban-white-gold.jpg"),
+    image: pImg("04-white-cuban-chain", "front-white"),
+    bannerImage: pImg("08-gold-cuban-clasp", "front-white"),
     bannerTitle: "Solid links, soldered and stress-tested by hand.",
     children: [
       { name: "All chains", href: "/products?category=chains" },
-      { name: "Cuban link", href: "/products/cuban-link-chain-10k" },
+      { name: "Yellow Gold Cuban", href: "/products/cuban-link-chain-10k" },
+      { name: "White Gold Cuban", href: "/products/white-gold-cuban-link-chain" },
+      { name: "Crown Cuban", href: "/products/crown-motif-diamond-cuban-chain" },
+      { name: "Graduated Collar", href: "/products/graduated-baguette-diamond-necklace" },
       { name: "Custom chains", href: "/custom" },
-      { name: "Pendants", href: "/products?category=pendants" },
     ],
     sortOrder: 2,
     showInNav: true,
@@ -74,12 +72,14 @@ const categories: Category[] = [
     name: "Pendants",
     slug: "pendants",
     description: "Pendants cut and set to your own drawing.",
-    image: img("pendant-gold-bead-set.jpg"),
-    bannerImage: img("pendant-gold-bead-set.jpg"),
+    image: pImg("06-gold-bead-pendant", "front-white"),
+    bannerImage: pImg("03-shield-pendant-chain", "front-white"),
     bannerTitle: "Pendants cut and set to your own drawing.",
     children: [
       { name: "All pendants", href: "/products?category=pendants" },
-      { name: "Custom pendants", href: "/custom" },
+      { name: "Shield Pendant", href: "/products/shield-motif-diamond-pendant" },
+      { name: "Calligraphy Medallion", href: "/products/gold-bead-calligraphy-pendant" },
+      { name: "Custom Nameplate", href: "/products/custom-nameplate-diamond-pendant" },
       { name: "Pair with a chain", href: "/products?category=chains" },
     ],
     sortOrder: 3,
@@ -91,13 +91,14 @@ const categories: Category[] = [
     _id: "cat_bracelets",
     name: "Bracelets",
     slug: "bracelets",
-    description: "Tennis lines, cuffs and Cuban bracelets, matched stone for stone.",
-    image: img("bracelet-cuban-crown-stones.jpg"),
-    bannerImage: img("bracelet-love-pave-boxed.jpg"),
+    description: "Tennis lines, cuffs and bangles, matched stone for stone.",
+    image: pImg("11-rose-gold-bangle", "front-white"),
+    bannerImage: pImg("12-three-clover-bracelet", "front-white"),
     bannerTitle: "Bracelets, matched stone for stone.",
     children: [
       { name: "All bracelets", href: "/products?category=bracelets" },
-      { name: "Tennis", href: "/products/pave-diamond-tennis-bracelet" },
+      { name: "Rose Gold Pave Bangle", href: "/products/rose-gold-pave-screw-bangle" },
+      { name: "Three Clover Bracelet", href: "/products/three-clover-motif-bracelet" },
       { name: "Custom bracelets", href: "/custom" },
     ],
     sortOrder: 4,
@@ -127,13 +128,14 @@ const categories: Category[] = [
     _id: "cat_watches",
     name: "Watches",
     slug: "watches",
-    description: "Bezel and dial work on your watch, or one we source.",
-    image: img("watch-sky-dweller-iced.jpg"),
-    bannerImage: img("watch-sky-dweller-iced.jpg"),
+    description: "Bezel and dial diamond work on your watch, or one we source.",
+    image: pImg("09-rolex-datejust-corrected", "front-white"),
+    bannerImage: pImg("14-black-dial-watch", "front-white"),
     bannerTitle: "Bezel and dial work on your watch, or one we source.",
     children: [
       { name: "All watches", href: "/products?category=watches" },
-      { name: "Diamond bezel", href: "/products/presidential-rolex-custom" },
+      { name: "Rolex Datejust 41", href: "/products/custom-diamond-rolex-datejust" },
+      { name: "Rolex Sky-Dweller", href: "/products/rolex-sky-dweller-diamond-black-dial" },
       { name: "Bring your own", href: "/contact" },
     ],
     sortOrder: 6,
@@ -147,7 +149,22 @@ const categories: Category[] = [
 /* Products                                                                  */
 /* ------------------------------------------------------------------------ */
 
-const product = (p: Partial<Product> & Pick<Product, "slug" | "name" | "categoryId" | "price" | "blurb" | "detail" | "specs" | "availability" | "images" | "orientation">): Product => ({
+const product = (
+  p: Partial<Product> &
+    Pick<
+      Product,
+      | "slug"
+      | "name"
+      | "categoryId"
+      | "price"
+      | "blurb"
+      | "detail"
+      | "specs"
+      | "availability"
+      | "images"
+      | "orientation"
+    >
+): Product => ({
   _id: `prod_${p.slug}`,
   sku: "",
   collectionIds: [],
@@ -169,147 +186,427 @@ const product = (p: Partial<Product> & Pick<Product, "slug" | "name" | "category
 
 const products: Product[] = [
   product({
-    slug: "radiant-cut-solitaire-ring",
-    name: "Radiant Cut Solitaire Ring",
-    categoryId: "cat_rings",
-    collectionIds: ["col_engagement-edit"],
-    price: 4800,
-    blurb: "2.5ct radiant cut in 18k white gold.",
-    detail:
-      "A single radiant-cut stone carried on a tapered 18k white gold band. The radiant cut keeps the brilliance of a round with the footprint of an emerald, which is why it reads larger than its carat weight across a room.",
-    specs: [
-      { label: "Centre stone", value: "2.5ct radiant cut" },
-      { label: "Metal", value: "18k white gold" },
-      { label: "Certification", value: "GIA" },
-      { label: "Setting", value: "Four-claw solitaire" },
-    ],
-    metal: "18k white gold",
-    stone: "Natural diamond",
-    caratWeight: "2.5ct",
-    availability: "available",
-    images: [img("ring-radiant-two-tone.jpg"), img("ring-radiant-two-tone-three-quarter.jpg"), img("ring-radiant-two-tone-side.jpg"), img("ring-radiant-two-tone-macro.jpg")],
-    orientation: "portrait",
-    badges: ["new"],
-    featured: true,
-    sortOrder: 1,
-  }),
-  product({
-    slug: "cuban-link-chain-10k",
-    name: "Cuban Link Chain 10mm",
-    categoryId: "cat_chains",
-    collectionIds: ["col_cuban-links"],
-    price: 3200,
-    blurb: "Solid 10mm Cuban link, hand-finished.",
-    detail:
-      "Solid links, hand-polished and box-clasped. Every link is individually soldered and stress-tested before finishing, which is the difference between a chain that keeps its shape and one that flattens inside a year.",
-    specs: [
-      { label: "Width", value: "10mm" },
-      { label: "Construction", value: "Solid, hand-soldered" },
-      { label: "Clasp", value: "Box clasp with safety latch" },
-      { label: "Finish", value: "High polish" },
-    ],
-    metal: "14k yellow gold",
-    stone: "Pave diamonds",
-    availability: "available",
-    images: [img("chain-cuban-yellow-gold.jpg"), img("chain-cuban-yellow-gold-three-quarter.jpg"), img("chain-cuban-yellow-gold-side.jpg"), img("chain-cuban-yellow-gold-macro.jpg")],
-    orientation: "portrait",
-    badges: ["bestseller"],
-    featured: true,
-    sortOrder: 2,
-  }),
-  product({
-    slug: "pave-diamond-tennis-bracelet",
-    name: "Pave Diamond Tennis Bracelet",
-    categoryId: "cat_bracelets",
-    price: 6500,
-    blurb: "Continuous pave line, secured double clasp.",
-    detail:
-      "An unbroken line of pave-set stones on a flexible track, closed with a double clasp so it sits flat against the wrist. Matched for colour and clarity across the full length, which is the slow part of building one properly.",
-    specs: [
-      { label: "Setting", value: "Continuous pave" },
-      { label: "Closure", value: "Double clasp" },
-      { label: "Metal", value: "14k white gold" },
-      { label: "Certification", value: "IGI" },
-    ],
-    metal: "14k white gold",
-    stone: "Lab-grown diamond",
-    availability: "available",
-    images: [img("tennis-bracelet-watch-case.jpg")],
-    orientation: "square",
-    featured: true,
-    sortOrder: 3,
-  }),
-  product({
-    slug: "halo-engagement-ring",
-    name: "Halo Engagement Ring",
+    slug: "round-halo-engagement-ring",
+    name: "Round Halo Diamond Engagement Ring",
     categoryId: "cat_rings",
     collectionIds: ["col_engagement-edit"],
     price: 7200,
-    blurb: "1.5ct round brilliant, double halo, platinum.",
+    blurb: "1.5ct round brilliant centre in a double halo setting, platinum.",
     detail:
-      "A round brilliant centre ringed by two concentric halos in platinum. The second halo is what carries the light outward, so the piece holds its presence in low light as well as it does under a showroom lamp.",
+      "A round brilliant centre ringed by two concentric halos in platinum with a multi-row pave band. The second halo carries the light outward, ensuring the piece holds its brilliant presence across the room and under showroom lights.",
     specs: [
       { label: "Centre stone", value: "1.5ct round brilliant" },
       { label: "Metal", value: "Platinum" },
-      { label: "Setting", value: "Double halo" },
+      { label: "Setting", value: "Double halo, multi-row pave band" },
       { label: "Certification", value: "GIA" },
     ],
     metal: "Platinum",
     stone: "Natural diamond",
     caratWeight: "1.5ct",
     availability: "available",
-    images: [img("ring-round-halo-pave.jpg"), img("ring-round-halo-pave-three-quarter.jpg"), img("ring-round-halo-pave-side.jpg"), img("ring-round-halo-pave-macro.jpg")],
-    orientation: "landscape",
+    images: [
+      pImg("01-round-halo-ring", "front-white"),
+      pImg("01-round-halo-ring", "three-quarter-white"),
+      pImg("01-round-halo-ring", "side-white"),
+      pImg("01-round-halo-ring", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["bestseller"],
+    featured: true,
+    sortOrder: 1,
+  }),
+  product({
+    slug: "radiant-cut-solitaire-ring",
+    name: "Radiant Cut Scrollwork Solitaire Ring",
+    categoryId: "cat_rings",
+    collectionIds: ["col_engagement-edit", "col_bespoke"],
+    price: 4800,
+    blurb: "2.5ct radiant cut in hand-engraved 18k yellow gold.",
+    detail:
+      "A single elongated radiant-cut stone carried on a hand-engraved scrollwork 18k yellow gold band with white-metal corner prongs. The radiant cut keeps the fire of a brilliant with the elegant footprint of an emerald cut.",
+    specs: [
+      { label: "Centre stone", value: "2.5ct radiant cut" },
+      { label: "Metal", value: "18k yellow gold & white metal" },
+      { label: "Band", value: "Hand-engraved scrollwork" },
+      { label: "Certification", value: "GIA" },
+    ],
+    metal: "18k yellow gold",
+    stone: "Natural diamond",
+    caratWeight: "2.5ct",
+    availability: "available",
+    images: [
+      pImg("02-gold-rectangular-ring", "front-white"),
+      pImg("02-gold-rectangular-ring", "three-quarter-white"),
+      pImg("02-gold-rectangular-ring", "side-white"),
+      pImg("02-gold-rectangular-ring", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["new"],
+    featured: true,
+    sortOrder: 2,
+  }),
+  product({
+    slug: "shield-motif-diamond-pendant",
+    name: "Two-Tone Shield Motif Diamond Pendant & Chain",
+    categoryId: "cat_pendants",
+    collectionIds: ["col_bespoke"],
+    price: 5400,
+    blurb: "Two-tone angular diamond link necklace with sculpted shield pendant.",
+    detail:
+      "A bespoke two-tone necklace featuring angular pave diamond links, rose-gold architectural ornaments, a sculpted leaf-shaped bail, and a dimensional shield pendant with horse relief in full diamond pave.",
+    specs: [
+      { label: "Pendant", value: "Sculpted shield with horse relief" },
+      { label: "Metal", value: "14k two-tone gold (yellow & rose)" },
+      { label: "Stone", value: "Hand-set brilliant diamonds" },
+      { label: "Chain", value: "Custom angular diamond link" },
+    ],
+    metal: "14k two-tone gold",
+    stone: "Natural diamond",
+    caratWeight: "3.2ct",
+    availability: "available",
+    images: [
+      pImg("03-shield-pendant-chain", "front-white"),
+      pImg("03-shield-pendant-chain", "three-quarter-white"),
+      pImg("03-shield-pendant-chain", "side-white"),
+      pImg("03-shield-pendant-chain", "macro-white"),
+    ],
+    orientation: "portrait",
+    badges: ["custom"],
+    featured: true,
+    sortOrder: 3,
+  }),
+  product({
+    slug: "white-gold-cuban-link-chain",
+    name: "White Gold Diamond Cuban Link Chain 12mm",
+    categoryId: "cat_chains",
+    collectionIds: ["col_cuban-links"],
+    price: 8900,
+    blurb: "Solid 12mm white gold links with broad rectangular pave clasp.",
+    detail:
+      "Solid 14k white gold Cuban links with an unbroken setting of brilliant round diamonds and a signature heavy box clasp. Each link is hand-soldered, aligned, and stress-tested in the Chicago workshop.",
+    specs: [
+      { label: "Width", value: "12mm" },
+      { label: "Metal", value: "14k white gold" },
+      { label: "Setting", value: "Full pave, hand-set" },
+      { label: "Clasp", value: "Rectangular box clasp with dual safety" },
+    ],
+    metal: "14k white gold",
+    stone: "Natural diamond",
+    caratWeight: "18.5ct",
+    availability: "available",
+    images: [
+      pImg("04-white-cuban-chain", "front-white"),
+      pImg("04-white-cuban-chain", "three-quarter-white"),
+      pImg("04-white-cuban-chain", "side-white"),
+      pImg("04-white-cuban-chain", "macro-white"),
+    ],
+    orientation: "square",
     badges: ["bestseller"],
     featured: true,
     sortOrder: 4,
   }),
   product({
-    slug: "presidential-rolex-custom",
-    name: "Custom Diamond Bezel Watch",
-    categoryId: "cat_watches",
-    price: 18500,
-    priceNote: "Starting at",
-    blurb: "Bring your watch, or let us source one.",
+    slug: "emerald-cut-double-pave-ring",
+    name: "Emerald Cut Double Pave Ring",
+    categoryId: "cat_rings",
+    collectionIds: ["col_engagement-edit"],
+    price: 6400,
+    blurb: "2.0ct emerald cut flanked by a double-row pave band.",
     detail:
-      "Bezel, lugs and dial work on a watch you already own, or on one we source for you. Stones are set by hand into a bezel cut to the reference, never a drop-in aftermarket part.",
+      "An elongated emerald-cut diamond in four corner prongs, resting on a white-metal band split into two rows of micro-pave diamonds. The step-cut faceting creates hall-of-mirrors clarity paired with intense scintillation along the shank.",
     specs: [
-      { label: "Service", value: "Bezel, lugs, dial" },
-      { label: "Sourcing", value: "Yours or ours" },
-      { label: "Setting", value: "Hand-set" },
-      { label: "Timeline", value: "3 to 5 weeks" },
+      { label: "Centre stone", value: "2.0ct emerald cut" },
+      { label: "Metal", value: "18k white gold" },
+      { label: "Band", value: "Double-row micro-pave" },
+      { label: "Certification", value: "GIA" },
     ],
-    metal: "Stainless steel",
+    metal: "18k white gold",
     stone: "Natural diamond",
-    availability: "inquire",
-    images: [img("watch-datejust-iced.jpg"), img("watch-sky-dweller-iced.jpg"), img("watch-lineup-iced.jpg")],
-    orientation: "portrait",
-    badges: ["custom"],
+    caratWeight: "2.0ct",
+    availability: "available",
+    images: [
+      pImg("05-emerald-cut-ring", "front-white"),
+      pImg("05-emerald-cut-ring", "three-quarter-white"),
+      pImg("05-emerald-cut-ring", "side-white"),
+      pImg("05-emerald-cut-ring", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["new"],
+    featured: true,
     sortOrder: 5,
   }),
   product({
-    slug: "custom-engagement-ring",
-    name: "Custom Engagement Ring",
-    categoryId: "cat_rings",
-    collectionIds: ["col_engagement-edit"],
+    slug: "gold-bead-calligraphy-pendant",
+    name: "Gold Bead Calligraphy Medallion Pendant",
+    categoryId: "cat_pendants",
+    collectionIds: ["col_bespoke"],
+    price: 3600,
+    blurb: "Solid yellow gold bead chain with diamond calligraphy medallion.",
+    detail:
+      "Handmade solid gold beaded necklace carrying a circular medallion inscribed with intricate Arabic calligraphy and framed with round brilliant diamond accents.",
+    specs: [
+      { label: "Pendant", value: "Circular calligraphy medallion" },
+      { label: "Chain", value: "Hand-beaded 18k yellow gold" },
+      { label: "Metal", value: "18k yellow gold" },
+      { label: "Accent stones", value: "Brilliant diamonds" },
+    ],
+    metal: "18k yellow gold",
+    stone: "Natural diamond",
+    caratWeight: "1.2ct",
+    availability: "available",
+    images: [
+      pImg("06-gold-bead-pendant", "front-white"),
+      pImg("06-gold-bead-pendant", "three-quarter-white"),
+      pImg("06-gold-bead-pendant", "side-white"),
+      pImg("06-gold-bead-pendant", "macro-white"),
+    ],
+    orientation: "portrait",
+    badges: ["custom"],
+    featured: false,
+    sortOrder: 6,
+  }),
+  product({
+    slug: "cuban-link-chain-10k",
+    name: "Yellow Gold Pave Cuban Link Chain 10mm",
+    categoryId: "cat_chains",
+    collectionIds: ["col_cuban-links"],
+    price: 3200,
+    blurb: "Solid 10mm yellow gold Cuban links with diamond pave box clasp.",
+    detail:
+      "Solid links, hand-polished and fitted with our signature rectangular pave diamond box clasp. Every link is individually soldered and stress-tested before finishing, guaranteeing lifetime structure.",
+    specs: [
+      { label: "Width", value: "10mm" },
+      { label: "Construction", value: "Solid, hand-soldered" },
+      { label: "Clasp", value: "Diamond pave box clasp with safety latch" },
+      { label: "Finish", value: "High polish" },
+    ],
+    metal: "14k yellow gold",
+    stone: "Pave diamonds",
+    caratWeight: "4.5ct",
+    availability: "available",
+    images: [
+      pImg("08-gold-cuban-clasp", "front-white"),
+      pImg("08-gold-cuban-clasp", "three-quarter-white"),
+      pImg("08-gold-cuban-clasp", "side-white"),
+      pImg("08-gold-cuban-clasp", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["bestseller"],
+    featured: true,
+    sortOrder: 7,
+  }),
+  product({
+    slug: "custom-diamond-rolex-datejust",
+    name: "Custom Diamond Rolex Datejust 41",
+    categoryId: "cat_watches",
+    collectionIds: ["col_bespoke"],
+    price: 22500,
+    priceNote: "Starting at",
+    blurb: "Diamond pave case, baguette & pave bracelet, custom datejust.",
+    detail:
+      "Custom diamond setting on a Rolex Datejust 41. Fully paved round case with hand-set brilliant stones, bespoke bezel, and integrated Oyster bracelet with alternating baguette and round pave center links. Available on your watch or sourced by our Chicago studio.",
+    specs: [
+      { label: "Base watch", value: "Rolex Datejust 41" },
+      { label: "Setting", value: "Full pave case, baguette & pave bracelet" },
+      { label: "Metal", value: "Stainless steel & white gold" },
+      { label: "Diamond quality", value: "VS1-VS2, F-G colour" },
+    ],
+    metal: "Stainless steel & white gold",
+    stone: "Natural diamond",
+    caratWeight: "15.0ct",
+    availability: "inquire",
+    images: [
+      pImg("09-rolex-datejust-corrected", "front-white"),
+      pImg("09-rolex-datejust-corrected", "three-quarter-white"),
+      pImg("09-rolex-datejust-corrected", "side-white"),
+      pImg("09-rolex-datejust-corrected", "macro-white"),
+    ],
+    orientation: "portrait",
+    badges: ["custom"],
+    featured: true,
+    sortOrder: 8,
+  }),
+  product({
+    slug: "crown-motif-diamond-cuban-chain",
+    name: "Crown Motif Diamond Cuban Chain",
+    categoryId: "cat_chains",
+    collectionIds: ["col_cuban-links"],
+    price: 7800,
+    blurb: "Two-tone diamond Cuban link chain with sculpted crown centerpiece.",
+    detail:
+      "Solid Cuban chain with high-grade pave diamonds, highlighted by a sculpted imperial crown centerpiece and custom box closure in two-tone rose and yellow gold.",
+    specs: [
+      { label: "Feature", value: "Sculpted imperial crown motif" },
+      { label: "Metal", value: "14k rose and yellow gold" },
+      { label: "Setting", value: "Full pave brilliant diamonds" },
+      { label: "Clasp", value: "Integrated hidden box clasp" },
+    ],
+    metal: "14k rose and yellow gold",
+    stone: "Natural diamond",
+    caratWeight: "8.5ct",
+    availability: "available",
+    images: [
+      pImg("10-crown-chain", "front-white"),
+      pImg("10-crown-chain", "three-quarter-white"),
+      pImg("10-crown-chain", "side-white"),
+      pImg("10-crown-chain", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["bestseller"],
+    featured: false,
+    sortOrder: 9,
+  }),
+  product({
+    slug: "rose-gold-pave-screw-bangle",
+    name: "Rose Gold Pave Screw Bangle",
+    categoryId: "cat_bracelets",
+    collectionIds: ["col_bespoke"],
+    price: 4200,
+    blurb: "18k rose gold oval bangle precision set with brilliant diamond rows.",
+    detail:
+      "Oval ergonomic bangle in solid 18k rose gold, adorned with alternating screw motifs and double-row brilliant cut diamond pave. Fitted with a secure concealed hinge mechanism.",
+    specs: [
+      { label: "Metal", value: "18k rose gold" },
+      { label: "Setting", value: "Multi-row precision pave" },
+      { label: "Motif", value: "Alternating screw design" },
+      { label: "Closure", value: "Concealed hinge and push-lock" },
+    ],
+    metal: "18k rose gold",
+    stone: "Natural diamond",
+    caratWeight: "2.8ct",
+    availability: "available",
+    images: [
+      pImg("11-rose-gold-bangle", "front-white"),
+      pImg("11-rose-gold-bangle", "three-quarter-white"),
+      pImg("11-rose-gold-bangle", "side-white"),
+      pImg("11-rose-gold-bangle", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["new"],
+    featured: true,
+    sortOrder: 10,
+  }),
+  product({
+    slug: "three-clover-motif-bracelet",
+    name: "Three Clover Motif Chain Bracelet",
+    categoryId: "cat_bracelets",
+    collectionIds: ["col_bespoke"],
+    price: 2800,
+    blurb: "Delicate yellow gold cable chain with three diamond pave clover motifs.",
+    detail:
+      "Three four-lobed clover motifs finished with beaded golden rims and full micro-pave diamond centers, linked along a fine 18k yellow gold cable chain.",
+    specs: [
+      { label: "Metal", value: "18k yellow gold" },
+      { label: "Motifs", value: "Three clover stations with beaded edging" },
+      { label: "Setting", value: "Micro-pave diamonds" },
+      { label: "Clasp", value: "Lobster clasp with sizing rings" },
+    ],
+    metal: "18k yellow gold",
+    stone: "Natural diamond",
+    caratWeight: "1.5ct",
+    availability: "available",
+    images: [
+      pImg("12-three-clover-bracelet", "front-white"),
+      pImg("12-three-clover-bracelet", "three-quarter-white"),
+      pImg("12-three-clover-bracelet", "side-white"),
+      pImg("12-three-clover-bracelet", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["bestseller"],
+    featured: false,
+    sortOrder: 11,
+  }),
+  product({
+    slug: "rolex-sky-dweller-diamond-black-dial",
+    name: "Rolex Sky-Dweller Diamond Black Dial",
+    categoryId: "cat_watches",
+    collectionIds: ["col_bespoke"],
+    price: 34000,
+    priceNote: "Starting at",
+    blurb: "Fully iced Rolex Sky-Dweller with black Arabic dial & 24-hr ring.",
+    detail:
+      "Custom high-carat setting on a Rolex Sky-Dweller. Deep black dial with iced Arabic numerals, contrasting 24-hour off-center disc, diamond-pave bezel, case, and solid Jubilee-style links.",
+    specs: [
+      { label: "Base watch", value: "Rolex Sky-Dweller" },
+      { label: "Dial", value: "Black dial, iced Arabic numerals, 24-hr ring" },
+      { label: "Metal", value: "White gold & stainless steel" },
+      { label: "Diamond setting", value: "Full case, bezel & bracelet" },
+    ],
+    metal: "White gold & stainless steel",
+    stone: "Natural diamond",
+    caratWeight: "22.0ct",
+    availability: "inquire",
+    images: [
+      pImg("14-black-dial-watch", "front-white"),
+      pImg("14-black-dial-watch", "three-quarter-white"),
+      pImg("14-black-dial-watch", "side-white"),
+      pImg("14-black-dial-watch", "macro-white"),
+    ],
+    orientation: "portrait",
+    badges: ["custom"],
+    featured: true,
+    sortOrder: 12,
+  }),
+  product({
+    slug: "custom-nameplate-diamond-pendant",
+    name: "Custom Script Nameplate Diamond Pendant",
+    categoryId: "cat_pendants",
+    collectionIds: ["col_bespoke"],
     price: null,
     priceNote: "Request a quote",
-    blurb: "Fully custom, consultation to creation.",
+    blurb: "Fully custom 3D script nameplate set with VS diamonds on link chain.",
     detail:
-      "Start from a sketch, a photograph, or nothing at all. We design the piece, source the stone against your budget, and hand it over in two to four weeks.",
+      "Multi-layered custom 3D script pendant crafted from customer artwork or lettering, fully iced with round brilliant diamonds and held by an oversized pave shield bail on an angular-link chain.",
     specs: [
-      { label: "Starting point", value: "Sketch, photo, or idea" },
-      { label: "Stone", value: "Natural or lab-grown" },
+      { label: "Starting point", value: "Client sketch or lettering" },
+      { label: "Construction", value: "3D layered solid metal" },
+      { label: "Metal", value: "14k white, yellow or rose gold" },
       { label: "Timeline", value: "2 to 4 weeks" },
-      { label: "Consultation", value: "Free" },
     ],
-    stone: "Natural or lab-grown",
+    metal: "14k white gold",
+    stone: "Natural diamond",
+    caratWeight: "Custom",
     availability: "custom",
-    images: [img("ring-emerald-cut-pave.jpg"), img("ring-emerald-cut-pave-three-quarter.jpg"), img("ring-emerald-cut-pave-side.jpg"), img("ring-emerald-cut-pave-macro.jpg")],
-    orientation: "portrait",
+    images: [
+      pImg("16-name-pendant-chain", "front-white"),
+      pImg("16-name-pendant-chain", "three-quarter-white"),
+      pImg("16-name-pendant-chain", "side-white"),
+      pImg("16-name-pendant-chain", "macro-white"),
+    ],
+    orientation: "square",
     badges: ["new", "custom"],
+    featured: false,
+    sortOrder: 13,
+  }),
+  product({
+    slug: "graduated-baguette-diamond-necklace",
+    name: "Graduated Baguette Diamond Collar Necklace",
+    categoryId: "cat_chains",
+    collectionIds: ["col_bespoke"],
+    price: 16500,
+    blurb: "Graduated collar necklace of channel-set baguette diamonds.",
+    detail:
+      "A masterwork high-jewelry collar necklace featuring graduated diagonal segments of custom-cut baguette diamonds, broadening toward the center and contouring seamlessly along the collarbone.",
+    specs: [
+      { label: "Design", value: "Graduated diagonal segmented collar" },
+      { label: "Stone cut", value: "Step-cut natural baguette diamonds" },
+      { label: "Metal", value: "18k white gold" },
+      { label: "Setting", value: "Invisible channel setting" },
+    ],
+    metal: "18k white gold",
+    stone: "Natural diamond",
+    caratWeight: "12.0ct",
+    availability: "available",
+    images: [
+      pImg("17-graduated-necklace", "front-white"),
+      pImg("17-graduated-necklace", "three-quarter-white"),
+      pImg("17-graduated-necklace", "side-white"),
+      pImg("17-graduated-necklace", "macro-white"),
+    ],
+    orientation: "square",
+    badges: ["new"],
     featured: true,
-    sortOrder: 6,
+    sortOrder: 14,
   }),
 ];
 
@@ -322,9 +619,13 @@ const collections: Collection[] = [
     _id: "col_engagement-edit",
     name: "The Engagement Edit",
     slug: "engagement-edit",
-    description: "Solitaires and halos built around a stone sourced to your budget, natural or lab-grown.",
-    image: img("ring-round-halo-pave.jpg"),
-    productIds: ["prod_radiant-cut-solitaire-ring", "prod_halo-engagement-ring", "prod_custom-engagement-ring"],
+    description: "Solitaires, halos and custom rings built around a stone sourced to your budget, natural or lab-grown.",
+    image: pImg("01-round-halo-ring", "front-white"),
+    productIds: [
+      "prod_round-halo-engagement-ring",
+      "prod_radiant-cut-solitaire-ring",
+      "prod_emerald-cut-double-pave-ring",
+    ],
     sortOrder: 1,
     featured: true,
     ...stamp,
@@ -334,8 +635,13 @@ const collections: Collection[] = [
     name: "Cuban Links & Chains",
     slug: "cuban-links",
     description: "Every link individually soldered and stress-tested, so it keeps its shape for a lifetime.",
-    image: img("chain-cuban-white-gold.jpg"),
-    productIds: ["prod_cuban-link-chain-10k"],
+    image: pImg("08-gold-cuban-clasp", "front-white"),
+    productIds: [
+      "prod_cuban-link-chain-10k",
+      "prod_white-gold-cuban-link-chain",
+      "prod_crown-motif-diamond-cuban-chain",
+      "prod_graduated-baguette-diamond-necklace",
+    ],
     sortOrder: 2,
     featured: true,
     ...stamp,
@@ -345,8 +651,13 @@ const collections: Collection[] = [
     name: "Bespoke Commissions",
     slug: "bespoke",
     description: "Bring a sketch, a photo, or a feeling. We design, source and build it in two to four weeks.",
-    image: img("ring-radiant-two-tone.jpg"),
-    productIds: ["prod_custom-engagement-ring", "prod_presidential-rolex-custom"],
+    image: pImg("02-gold-rectangular-ring", "front-white"),
+    productIds: [
+      "prod_custom-nameplate-diamond-pendant",
+      "prod_shield-motif-diamond-pendant",
+      "prod_custom-diamond-rolex-datejust",
+      "prod_rolex-sky-dweller-diamond-black-dial",
+    ],
     sortOrder: 3,
     featured: true,
     ...stamp,
@@ -392,7 +703,7 @@ const settings: Settings = {
     {
       id: "hero_engagement",
       kind: "image",
-      src: img("hero-halo-ring.jpg"),
+      src: pImg("01-round-halo-ring", "hero"),
       poster: "",
       eyebrow: "Signature",
       title: "The Engagement Edit",
@@ -404,7 +715,7 @@ const settings: Settings = {
     {
       id: "hero_cuban",
       kind: "image",
-      src: img("hero-cuban-chain.jpg"),
+      src: pImg("08-gold-cuban-clasp", "hero"),
       poster: "",
       eyebrow: "Hand-finished",
       title: "Solid Cuban Links",
@@ -416,7 +727,7 @@ const settings: Settings = {
     {
       id: "hero_bespoke",
       kind: "image",
-      src: img("hero-radiant-ring.jpg"),
+      src: pImg("02-gold-rectangular-ring", "hero"),
       poster: "",
       eyebrow: "Bespoke",
       title: "Your Vision, Our Craft",
@@ -426,13 +737,25 @@ const settings: Settings = {
       enabled: true,
     },
     {
+      id: "hero_watches",
+      kind: "image",
+      src: pImg("09-rolex-datejust-corrected", "hero"),
+      poster: "",
+      eyebrow: "Master Timepieces",
+      title: "Custom Diamond Watches",
+      description: "Bezel, dial and bracelet diamond work on a watch you own, or one we source for you.",
+      ctaLabel: "Explore timepieces",
+      ctaHref: "/products?category=watches",
+      enabled: true,
+    },
+    {
       id: "hero_bracelets",
       kind: "image",
-      src: img("hero-crown-bracelet.jpg"),
+      src: pImg("11-rose-gold-bangle", "hero"),
       poster: "",
-      eyebrow: "Matched line",
-      title: "Pave Set Bracelets",
-      description: "Colour and clarity matched across the full length. That matching is the slow part.",
+      eyebrow: "Matched Line",
+      title: "Precision Set Bangles",
+      description: "18k rose gold precision set with brilliant diamond rows. Built to be worn every day.",
       ctaLabel: "Explore collection",
       ctaHref: "/products?category=bracelets",
       enabled: true,
@@ -462,26 +785,24 @@ const settings: Settings = {
       id: "step_consult",
       title: "Consultation",
       body: "Share the vision, the budget, and the style. Free, unhurried, and with the person who will actually build the piece.",
-      image: img("showroom-rope-chain-coins.jpg"),
+      image: pImg("06-gold-bead-pendant", "front-white"),
     },
     {
       id: "step_design",
       title: "Design and source",
       body: "We draw the piece and find the stone against your budget. Natural or lab-grown, with the same expertise behind both.",
-      image: img("bracelet-cuban-crown-stones.jpg"),
+      image: pImg("16-name-pendant-chain", "front-white"),
     },
     {
       id: "step_craft",
       title: "Crafted for you",
       body: "Set, finished and delivered by hand. Most commissions leave the bench in 2 to 4 weeks.",
-      image: img("ring-radiant-two-tone.jpg"),
+      image: pImg("02-gold-rectangular-ring", "front-white"),
     },
   ],
-  craftsmanship: { image: img("bracelet-cuban-crown-stones.jpg") },
-  about: { image: img("bracelet-cuban-crown-stones.jpg") },
-  // Watches, bracelets and pendants in one frame: the only plate that reads as
-  // the whole catalogue rather than one category.
-  nav: { allImage: img("tennis-bracelet-watch-case.jpg") },
+  craftsmanship: { image: pImg("08-gold-cuban-clasp", "macro-white") },
+  about: { image: pImg("10-crown-chain", "front-white") },
+  nav: { allImage: pImg("09-rolex-datejust-corrected", "front-white") },
   assurances: [
     { id: "a1", title: "GIA & IGI certified", detail: "Graded, every stone" },
     { id: "a2", title: "Natural or lab-grown", detail: "Equal expertise in both" },
@@ -514,12 +835,12 @@ const settings: Settings = {
     },
   ],
   highlights: [
-    { id: "h1", title: "Custom Rings", cover: img("ring-radiant-two-tone.jpg"), video: "", caption: "Engagement pieces, start to finish" },
-    { id: "h2", title: "Cuban Links", cover: img("chain-cuban-yellow-gold.jpg"), video: "", caption: "Solid links, hand-finished" },
-    { id: "h3", title: "Custom Pieces", cover: img("pendant-custom-interstate.jpg"), video: "", caption: "Built from the client's own drawing" },
-    { id: "h4", title: "Pickups", cover: img("bracelet-alhambra-boxed.jpg"), video: "", caption: "Pieces going home" },
-    { id: "h5", title: "Watches", cover: img("watch-cartier-santos.jpg"), video: "", caption: "Bezel and dial work" },
-    { id: "h6", title: "Loose Stones", cover: img("bracelet-cuban-crown-stones.jpg"), video: "", caption: "Natural and lab-grown, side by side" },
+    { id: "h1", title: "Custom Rings", cover: pImg("01-round-halo-ring", "front-white"), video: "", caption: "Engagement pieces, start to finish" },
+    { id: "h2", title: "Cuban Links", cover: pImg("08-gold-cuban-clasp", "front-white"), video: "", caption: "Solid links, hand-finished" },
+    { id: "h3", title: "Custom Pendants", cover: pImg("03-shield-pendant-chain", "front-white"), video: "", caption: "Built from client drawings" },
+    { id: "h4", title: "Bangles & Cuffs", cover: pImg("11-rose-gold-bangle", "front-white"), video: "", caption: "Precision pave lines" },
+    { id: "h5", title: "Watches", cover: pImg("09-rolex-datejust-corrected", "front-white"), video: "", caption: "Bezel, dial and bracelet work" },
+    { id: "h6", title: "High Jewelry", cover: pImg("17-graduated-necklace", "front-white"), video: "", caption: "Graduated baguette diamond collar" },
   ],
   financing: { enabled: false, text: "Financing available from 0% APR", href: "/contact" },
   chatbot: {
@@ -549,7 +870,7 @@ const settings: Settings = {
 };
 
 /* ------------------------------------------------------------------------ */
-/* FAQs — the questions the studio actually gets                             */
+/* FAQs                                                                      */
 /* ------------------------------------------------------------------------ */
 
 const faq = (id: string, topic: string, question: string, answer: string, sortOrder: number): Faq => ({
@@ -568,47 +889,62 @@ const faqs: Faq[] = [
   faq("timeline", "Custom work", "How long does it take?", "Most commissions leave the bench in 2 to 4 weeks. Watch work — bezel, lugs and dial — runs 3 to 5 weeks.", 2),
   faq("labgrown", "Stones", "Natural or lab-grown?", "We offer both and both come graded, GIA or IGI. Lab-grown costs 30 to 50% less than natural for the same look, which is the choice when carat weight matters more than origin.", 3),
   faq("cert", "Stones", "Are the diamonds certified?", "Every stone arrives with its GIA or IGI grading report and laser inscription, natural or lab-grown.", 4),
-  faq("budget", "Pricing", "What can I get for my budget?", "Listed pieces run from $3,200 for a solid Cuban link to $18,500 for custom watch work. Custom commissions are quoted against your number rather than a fixed list — tell us the budget and the piece gets designed around it.", 5),
-  faq("watch", "Watches", "Can you set diamonds on my own watch?", "Yes. Bezel, lug and dial work starts at $18,500 on a watch you own or one we source. Stones are hand-set into a bezel cut to the reference, never a drop-in aftermarket part.", 6),
+  faq("budget", "Pricing", "What can I get for my budget?", "Listed pieces run from $2,800 for delicate bracelets to $34,000 for custom iced timepieces. Custom commissions are quoted against your number rather than a fixed list — tell us the budget and the piece gets designed around it.", 5),
+  faq("watch", "Watches", "Can you set diamonds on my own watch?", "Yes. Bezel, lug, dial and bracelet work is offered on a watch you own or one we source. Stones are hand-set into custom mountings, never drop-in aftermarket parts.", 6),
   faq("visit", "Visiting", "Where is the showroom?", "Chicago, by appointment, Monday to Saturday. Call +1 (224) 647-1571 or book through the contact page and we will find a time.", 7),
   faq("care", "Aftercare", "What if it needs resizing or repair?", "Cleaning, prong tightening and resizing are covered for the life of the piece. Bring it in or call and we will sort it.", 8),
 ];
 
 /* ------------------------------------------------------------------------ */
-/* Media registry for the shipped photography                               */
+/* Media registry for all 14 product sets (70 assets)                        */
 /* ------------------------------------------------------------------------ */
 
-const MEDIA_FILES: [string, string][] = [
-  ["ring-round-halo-pave.jpg", "Round halo engagement ring"],
-  ["ring-radiant-two-tone.jpg", "Radiant cut ring, hand-engraved two-tone setting"],
-  ["ring-emerald-cut-pave.jpg", "Emerald cut ring with pave band"],
-  ["chain-cuban-white-gold.jpg", "White gold Cuban link chain"],
-  ["chain-cuban-yellow-gold.jpg", "Yellow gold Cuban link chain, box clasp"],
-  ["pendant-custom-interstate.jpg", "Custom Interstate pendant"],
-  ["pendant-gold-bead-set.jpg", "Gold bead pendant set"],
-  ["bracelet-cuban-crown-stones.jpg", "Cuban bracelet with crown clasp and loose stones"],
-  ["bracelet-love-pave-boxed.jpg", "Pave bangle, boxed"],
-  ["bracelet-alhambra-boxed.jpg", "Clover bracelet, boxed"],
-  ["tennis-bracelet-watch-case.jpg", "Tennis bracelet in a watch case"],
-  ["watch-datejust-iced.jpg", "Iced Datejust"],
-  ["watch-sky-dweller-iced.jpg", "Iced Sky-Dweller"],
-  ["watch-cartier-santos.jpg", "Santos watch"],
-  ["watch-lineup-iced.jpg", "Four iced watches"],
-  ["showroom-rope-chain-coins.jpg", "Rope chains in the showroom"],
+const PRODUCT_FOLDERS = [
+  "01-round-halo-ring",
+  "02-gold-rectangular-ring",
+  "03-shield-pendant-chain",
+  "04-white-cuban-chain",
+  "05-emerald-cut-ring",
+  "06-gold-bead-pendant",
+  "08-gold-cuban-clasp",
+  "09-rolex-datejust-corrected",
+  "10-crown-chain",
+  "11-rose-gold-bangle",
+  "12-three-clover-bracelet",
+  "14-black-dial-watch",
+  "16-name-pendant-chain",
+  "17-graduated-necklace",
 ];
 
-const media: MediaAsset[] = MEDIA_FILES.map(([file, alt]) => ({
-  _id: `media_${file.replace(/\.[a-z]+$/, "")}`,
-  url: img(file),
-  key: `images/${file}`,
-  kind: "image",
-  name: file,
-  size: 0,
-  contentType: "image/jpeg",
-  alt,
-  origin: "seed",
-  ...stamp,
-}));
+const SHOTS = [
+  { shot: "front-white", label: "Front studio cover" },
+  { shot: "three-quarter-white", label: "Three-quarter angle view" },
+  { shot: "side-white", label: "Side profile view" },
+  { shot: "macro-white", label: "Macro close-up detail" },
+  { shot: "hero", label: "Cinematic wide hero banner" },
+];
+
+const media: MediaAsset[] = [];
+
+for (const folder of PRODUCT_FOLDERS) {
+  const cleanName = folder.replace(/^[0-9]+-/, "").replace(/-/g, " ");
+  for (const { shot, label } of SHOTS) {
+    const filename = `${shot}.png`;
+    const relPath = `products/${folder}/${filename}`;
+    media.push({
+      _id: `media_${folder}_${shot}`,
+      url: `/images/${relPath}`,
+      key: `images/${relPath}`,
+      kind: "image",
+      name: `${folder}-${filename}`,
+      size: 0,
+      contentType: "image/png",
+      alt: `${cleanName} — ${label}`,
+      origin: "seed",
+      ...stamp,
+    });
+  }
+}
 
 /* ------------------------------------------------------------------------ */
 

@@ -92,6 +92,26 @@ class MongoStore implements Store {
     if (count === 0) {
       const docs = seedFor(col) as AnyDoc[];
       if (docs.length) await this.col(db, col).insertMany(docs);
+    } else {
+      if (col === "products" && count < 14) {
+        const docs = seedFor(col) as AnyDoc[];
+        for (const doc of docs) {
+          await this.col(db, col).replaceOne({ _id: doc._id }, doc, { upsert: true });
+        }
+      } else if (col === "settings") {
+        const existing = (await this.col(db, col).findOne({ _id: "site" })) as AnyDoc | null;
+        const hero = existing?.hero as Array<{ src?: string }> | undefined;
+        const hasLegacyHero = !hero || hero.some((h) => typeof h.src === "string" && h.src.endsWith(".jpg"));
+        if (hasLegacyHero) {
+          const defaultSettings = seedFor("settings")[0] as AnyDoc;
+          await this.col(db, col).replaceOne({ _id: "site" }, defaultSettings, { upsert: true });
+        }
+      } else if (col === "categories" || col === "collections") {
+        const docs = seedFor(col) as AnyDoc[];
+        for (const doc of docs) {
+          await this.col(db, col).replaceOne({ _id: doc._id }, doc, { upsert: true });
+        }
+      }
     }
     this.seeded.add(col);
   }

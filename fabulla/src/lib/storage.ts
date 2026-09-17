@@ -18,7 +18,7 @@
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { S3Client, PutObjectCommand, HeadBucketCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, HeadBucketCommand, GetBucketCorsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export type StorageMode = "r2" | "local";
@@ -147,7 +147,15 @@ export async function pingStorage(): Promise<{ ok: boolean; mode: StorageMode; d
         detail: `Uploads will succeed and then fail to load. R2_PUBLIC_URL is "${config.publicUrl}", which is the S3 API endpoint: it needs a signed request, so the browser and the "enhance" button both get 400 back. Use the bucket's public r2.dev URL (https://pub-….r2.dev) or a custom domain bound to the bucket.`,
       };
     }
-    return { ok: true, mode: "r2", detail: `${config.bucket} → ${config.publicUrl}` };
+    const cors = await s3(config).send(new GetBucketCorsCommand({ Bucket: config.bucket })).catch(() => null);
+    if (!cors || !cors.CORSRules || cors.CORSRules.length === 0) {
+      return {
+        ok: false,
+        mode: "r2",
+        detail: `Uploads will fail with a CORS error. The bucket "${config.bucket}" has no CORS policy configured. Apply a CORS rule in Cloudflare Dashboard or run "pnpm run set-cors".`,
+      };
+    }
+    return { ok: true, mode: "r2", detail: `${config.bucket} → ${config.publicUrl} (CORS active)` };
   } catch (error) {
     return { ok: false, mode: "r2", detail: error instanceof Error ? error.message : String(error) };
   }

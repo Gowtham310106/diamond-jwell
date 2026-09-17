@@ -12,6 +12,7 @@ out/
 .idea/
 .vscode/
 .gemini/
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
