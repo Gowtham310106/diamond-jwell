@@ -27,6 +27,8 @@ function rateLimited(ip: string): boolean {
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   recent.push(now);
   hits.set(ip, recent);
+  // A long-lived instance sees many addresses; forget the quiet ones.
+  if (hits.size > 2000) for (const [k, v] of hits) if (now - (v[v.length - 1] ?? 0) > WINDOW_MS) hits.delete(k);
   return recent.length > MAX_REQUESTS;
 }
 

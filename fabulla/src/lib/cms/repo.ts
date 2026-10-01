@@ -6,8 +6,9 @@
  * per request, so a page can call these freely.
  */
 
-import { revalidatePath } from "next/cache";
-import { getStore, loadAll, newId, now } from "./store";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
+import { getStore, loadAll, newId, now, tagFor } from "./store";
+import type { CollectionName } from "./types";
 import { DEFAULT_SETTINGS } from "./seed";
 import type {
   Admin,
@@ -35,6 +36,7 @@ export async function saveSettings(patch: Partial<Settings>): Promise<Settings> 
   const current = await getSettings();
   const next: Settings = { ...current, ...patch, _id: "site", updatedAt: now() };
   await getStore().put("settings", next);
+  invalidate("settings");
   revalidateSite();
   return next;
 }
@@ -243,13 +245,37 @@ export async function upsert<T extends { _id: string; createdAt: string; updated
   const stamp = now();
   const full = { ...doc, _id: doc._id ?? newId(), createdAt: doc.createdAt ?? stamp, updatedAt: stamp } as T;
   await getStore().put(col, full as never);
+  invalidate(col);
   if (col !== "conversations" && col !== "enquiries" && col !== "admins") revalidateSite();
   return full;
 }
 
 export async function remove(col: "categories" | "collections" | "products" | "faqs" | "enquiries" | "conversations" | "admins" | "media", id: string) {
   await getStore().remove(col, id);
+  invalidate(col);
   revalidateSite();
+}
+
+/**
+ * Drop the cached copy of one collection so the next read hits the store.
+ * `updateTag` gives read-your-own-writes inside a server action (the admin
+ * forms); outside one (API routes: uploads, AI images, chat logging) it
+ * throws, and `revalidateTag` does the same job minus the same-request
+ * guarantee.
+ */
+function invalidate(col: CollectionName) {
+  const tag = tagFor(col);
+  try {
+    updateTag(tag);
+    return;
+  } catch {
+    // Not in a server action.
+  }
+  try {
+    revalidateTag(tag, "max");
+  } catch {
+    // Outside a request scope (scripts, tests).
+  }
 }
 
 /** Every public page reads the store, so any admin write refreshes the lot. */

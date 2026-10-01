@@ -20,6 +20,7 @@
  */
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { MongoClient, type Db } from "mongodb";
@@ -86,32 +87,20 @@ class MongoStore implements Store {
     return db.collection<AnyDoc>(name);
   }
 
+  /**
+   * Seed an empty collection, once per instance. Only ever *inserts into an
+   * empty collection*: anything that rewrites existing documents belongs in
+   * `pnpm run reseed`, run by a person, not in the request path. (A previous
+   * version re-upserted categories, collections and settings here on every
+   * cold start, which both burned CPU on each new instance and silently undid
+   * admin edits.)
+   */
   private async ensureSeeded(db: Db, col: CollectionName) {
     if (this.seeded.has(col)) return;
     const count = await this.col(db, col).estimatedDocumentCount();
     if (count === 0) {
       const docs = seedFor(col) as AnyDoc[];
       if (docs.length) await this.col(db, col).insertMany(docs);
-    } else {
-      if (col === "products" && count < 14) {
-        const docs = seedFor(col) as AnyDoc[];
-        for (const doc of docs) {
-          await this.col(db, col).replaceOne({ _id: doc._id }, doc, { upsert: true });
-        }
-      } else if (col === "settings") {
-        const existing = (await this.col(db, col).findOne({ _id: "site" })) as AnyDoc | null;
-        const hero = existing?.hero as Array<{ src?: string }> | undefined;
-        const hasLegacyHero = !hero || hero.some((h) => typeof h.src === "string" && h.src.endsWith(".jpg"));
-        if (hasLegacyHero) {
-          const defaultSettings = seedFor("settings")[0] as AnyDoc;
-          await this.col(db, col).replaceOne({ _id: "site" }, defaultSettings, { upsert: true });
-        }
-      } else if (col === "categories" || col === "collections") {
-        const docs = seedFor(col) as AnyDoc[];
-        for (const doc of docs) {
-          await this.col(db, col).replaceOne({ _id: doc._id }, doc, { upsert: true });
-        }
-      }
     }
     this.seeded.add(col);
   }
@@ -260,10 +249,43 @@ export function getStore(): Store {
   return globalThis.__fabullaFileStore;
 }
 
-/** Per-request memoised read, so a page that needs settings five times loads them once. */
-export const loadAll = cache(async <K extends CollectionName>(col: K) => {
-  return getStore().all(col);
-});
+/* ------------------------------------------------------------------------ */
+/* Read cache                                                                */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Two layers over `store.all`:
+ *
+ *   1. The Next data cache (`unstable_cache`), shared across every function
+ *      instance and surviving between requests: a collection is fetched from
+ *      MongoDB at most once a minute per deployment, or sooner when an admin
+ *      write invalidates its tag. Without this, every dynamic request
+ *      (/products with any filter, the chat endpoint, every admin page)
+ *      pulled whole collections over the wire and decoded them again, which
+ *      is where the serverless CPU went.
+ *   2. React `cache`, so a page that needs settings five times in one render
+ *      asks the data cache once.
+ */
+
+export const CACHE_SECONDS = 60;
+
+export const tagFor = (col: CollectionName) => `cms:${col}`;
+
+const cachedReaders = new Map<CollectionName, () => Promise<unknown[]>>();
+
+function cachedAll<K extends CollectionName>(col: K): Promise<CollectionTypes[K][]> {
+  let reader = cachedReaders.get(col);
+  if (!reader) {
+    reader = unstable_cache(() => getStore().all(col), ["cms", col], {
+      revalidate: CACHE_SECONDS,
+      tags: ["cms", tagFor(col)],
+    });
+    cachedReaders.set(col, reader);
+  }
+  return reader() as Promise<CollectionTypes[K][]>;
+}
+
+export const loadAll = cache(async <K extends CollectionName>(col: K) => cachedAll(col));
 
 /** Health check for the admin integrations panel. */
 export async function pingStore(): Promise<{ ok: boolean; detail: string }> {

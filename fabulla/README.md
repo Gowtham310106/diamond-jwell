@@ -89,6 +89,27 @@ without the fade.
 
 ---
 
+## Serverless cost: where the CPU goes
+
+Every public page is static or ISR (60 s), so the only per-request work on
+Vercel is the dynamic surface: `/products` with filters, `/api/chat`,
+`/api/enquiries`, `/contact`, and the admin. Two rules keep that cheap:
+
+- **Reads are cached across requests.** `loadAll` in `src/lib/cms/store.ts`
+  wraps the store in Next's data cache, tagged per collection and good for
+  60 s. A collection is fetched from MongoDB at most once a minute per
+  deployment; every admin write invalidates its tag (`updateTag` inside
+  server actions for read-your-own-writes, `revalidateTag` elsewhere), and
+  `revalidatePath("/", "layout")` still refreshes the ISR pages.
+- **Nothing writes at cold start.** The store seeds a collection only when it
+  is empty. Bulk content changes go through `pnpm run reseed`, run by a
+  person. Rewriting documents on every new function instance both costs CPU
+  on each cold start and overwrites admin edits.
+
+If the Vercel usage graph still climbs, the Observability tab breaks Active
+CPU down by route; a crawler enumerating `/products?…` filter combinations
+is the usual culprit, and each of those is now a cache hit plus a render.
+
 ## Architecture
 
 ```
