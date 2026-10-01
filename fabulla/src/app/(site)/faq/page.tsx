@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: "Straight answers on custom work, timelines, natural versus lab-grown, certification, pricing and aftercare.",
 };
 
-export const revalidate = 60;
+// Admin writes revalidate on demand; the hour is only a safety net.
+export const revalidate = 3600;
 
 export default async function FaqPage() {
   const [faqs, settings] = await Promise.all([listFaqs(), getSettings()]);

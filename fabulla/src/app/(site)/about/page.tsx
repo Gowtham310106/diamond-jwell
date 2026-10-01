@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   description: "Fabulla Diamonds Co. is built on generations of diamond craftsmanship rooted in Surat, India, with a studio in Chicago since 2021.",
 };
 
-export const revalidate = 60;
+// Admin writes revalidate on demand; the hour is only a safety net.
+export const revalidate = 3600;
 
 export default async function AboutPage() {
   const settings = await getSettings();

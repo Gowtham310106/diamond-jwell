@@ -12,7 +12,8 @@ import { formatPrice } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const revalidate = 60;
+// Admin writes revalidate on demand; the hour is only a safety net.
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   return (await listPublished()).map((p) => ({ slug: p.slug }));

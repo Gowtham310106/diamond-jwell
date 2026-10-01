@@ -65,6 +65,16 @@ before, but now the admin panel edits it.
 
 ---
 
+### Keep the function next to the database
+
+Atlas shows the cluster's region on the cluster card (for example
+`AWS / N. Virginia (us-east-1)`). In Vercel → Project → Settings →
+Functions, set **Function Region** to the same one. Every page render talks
+to the database, and a cross-continent round trip is paid on each cold
+cache. Also confirm Atlas → Network Access allows `0.0.0.0/0` (Vercel has
+no fixed IP): a blocked connection makes every request wait out the
+timeout and then serve the built-in seed.
+
 ## 3. Photos & videos — `R2_*`
 
 Cloudflare R2 holds every upload. It is S3-compatible, has no egress fees,

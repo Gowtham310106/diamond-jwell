@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   description: "Custom diamond jewelry made in Chicago. Consultation to finished piece in two to four weeks, natural or lab-grown.",
 };
 
-export const revalidate = 60;
+// Admin writes revalidate on demand; the hour is only a safety net.
+export const revalidate = 3600;
 
 export default async function CustomPage() {
   const settings = await getSettings();

@@ -9,10 +9,26 @@ import { getCategory, getCollection, getSettings, listCollections, queryProducts
 import { CTA, igHref } from "@/lib/site";
 import { formatPrice } from "@/lib/utils";
 
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title: "Products",
   description: "Rings, chains, pendants, bracelets, earrings and watches. Natural and lab-grown, custom made in Chicago.",
 };
+
+/**
+ * The catalog with one filter (a category, a collection) is a page worth
+ * indexing. Two or more filters, a sort or a page number is one of thousands
+ * of combinations that all show the same products: a crawler that follows
+ * every chip turns into a steady stream of server renders. Those variants
+ * say noindex and point their canonical at the one-filter page.
+ */
+export async function generateMetadata(props: { searchParams: Promise<Params> }): Promise<Metadata> {
+  const sp = await props.searchParams;
+  const filters = ["category", "collection", "metal", "stone", "availability", "badge", "price", "q"].filter((k) => sp[k]);
+  const deep = filters.length > 1 || Boolean(sp.sort) || Boolean(sp.page) || Boolean(sp.q);
+  if (!deep) return BASE_METADATA;
+  const canonical = filters.length === 1 ? href({ [filters[0]]: sp[filters[0]] }, {}) : "/products";
+  return { ...BASE_METADATA, robots: { index: false, follow: true }, alternates: { canonical } };
+}
 
 type Params = Record<string, string | undefined>;
 

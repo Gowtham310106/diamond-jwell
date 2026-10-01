@@ -56,15 +56,29 @@ declare global {
   var __fabullaFileStore: FileStore | undefined;
 }
 
+/**
+ * After a failed connect, hold off for this long before trying again. Without
+ * it, a wrong URI or a missing Atlas IP allowlist entry makes *every* request
+ * spend the full server-selection timeout on its own doomed handshake.
+ */
+const CONNECT_BACKOFF_MS = 15_000;
+let lastConnectFailure = 0;
+
 function mongoClient(uri: string): Promise<MongoClient> {
   if (!globalThis.__fabullaMongo) {
+    if (Date.now() - lastConnectFailure < CONNECT_BACKOFF_MS) {
+      return Promise.reject(new Error("MongoDB connection failed recently; backing off."));
+    }
     globalThis.__fabullaMongo = new MongoClient(uri, {
       maxPoolSize: 5,
       serverSelectionTimeoutMS: 5_000,
+      connectTimeoutMS: 5_000,
+      maxIdleTimeMS: 60_000,
     })
       .connect()
       .catch((err) => {
         globalThis.__fabullaMongo = undefined;
+        lastConnectFailure = Date.now();
         throw err;
       });
   }
@@ -179,12 +193,23 @@ class FileStore implements Store {
     return this.data;
   }
 
+  private warnedReadOnly = false;
+
   private async flush() {
     const snapshot = JSON.stringify(this.data, null, 2);
     // Serialise writes so two admin saves cannot interleave.
     this.writing = this.writing.then(async () => {
-      await fs.mkdir(path.dirname(this.file), { recursive: true });
-      await fs.writeFile(this.file, snapshot, "utf8");
+      try {
+        await fs.mkdir(path.dirname(this.file), { recursive: true });
+        await fs.writeFile(this.file, snapshot, "utf8");
+      } catch (error) {
+        // A read-only disk (serverless, the Mongo fallback path) still serves
+        // from memory; it just cannot remember. Say so once, not per write.
+        if (!this.warnedReadOnly) {
+          this.warnedReadOnly = true;
+          console.warn("[Store] file store is read-only here; changes live in memory only:", error instanceof Error ? error.message : error);
+        }
+      }
     });
     await this.writing;
   }
@@ -258,8 +283,8 @@ export function getStore(): Store {
  *
  *   1. The Next data cache (`unstable_cache`), shared across every function
  *      instance and surviving between requests: a collection is fetched from
- *      MongoDB at most once a minute per deployment, or sooner when an admin
- *      write invalidates its tag. Without this, every dynamic request
+ *      MongoDB at most once every five minutes per deployment, or sooner
+ *      when an admin write invalidates its tag (every admin write does). Without this, every dynamic request
  *      (/products with any filter, the chat endpoint, every admin page)
  *      pulled whole collections over the wire and decoded them again, which
  *      is where the serverless CPU went.
@@ -267,13 +292,29 @@ export function getStore(): Store {
  *      asks the data cache once.
  */
 
-export const CACHE_SECONDS = 60;
+export const CACHE_SECONDS = 300;
 
 export const tagFor = (col: CollectionName) => `cms:${col}`;
 
+/**
+ * Collections only the admin reads. They are written from API routes (the
+ * inbox, chat logs, uploads) where a tag can only be marked stale, not
+ * expired, so caching them would show the admin a list that is one write
+ * behind. The admin is one person on a quiet page; the store can take it.
+ */
+const ADMIN_ONLY: ReadonlySet<CollectionName> = new Set<CollectionName>(["enquiries", "conversations", "admins", "media"]);
+
 const cachedReaders = new Map<CollectionName, () => Promise<unknown[]>>();
 
+/**
+ * The build must see the store as it is, never a cache entry a previous build
+ * or run left behind in .next/cache (Vercel keeps that directory between
+ * deploys), or a deploy would prerender pages from minutes-old content.
+ */
+const building = () => process.env.NEXT_PHASE === "phase-production-build";
+
 function cachedAll<K extends CollectionName>(col: K): Promise<CollectionTypes[K][]> {
+  if (ADMIN_ONLY.has(col) || building()) return getStore().all(col);
   let reader = cachedReaders.get(col);
   if (!reader) {
     reader = unstable_cache(() => getStore().all(col), ["cms", col], {

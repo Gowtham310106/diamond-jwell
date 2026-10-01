@@ -66,14 +66,20 @@ function fromB64url(text: string): Uint8Array<ArrayBuffer> {
   return out;
 }
 
-async function hmacKey(): Promise<CryptoKey> {
-  return crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret()),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign", "verify"]
-  );
+// One key import per instance: the proxy verifies a cookie on every admin
+// request, and the secret does not change while the process lives.
+let keyPromise: Promise<CryptoKey> | null = null;
+
+function hmacKey(): Promise<CryptoKey> {
+  if (!keyPromise) {
+    keyPromise = crypto.subtle
+      .importKey("raw", new TextEncoder().encode(secret()), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"])
+      .catch((err) => {
+        keyPromise = null;
+        throw err;
+      });
+  }
+  return keyPromise;
 }
 
 export async function signSession(payload: Omit<Session, "exp">, days = SESSION_DAYS): Promise<string> {

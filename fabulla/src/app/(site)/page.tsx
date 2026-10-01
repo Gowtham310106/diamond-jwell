@@ -22,7 +22,8 @@ import { bestSellers, featuredProducts, getSettings, listCategories, listCollect
  * collections, FAQs marked for the site). The concierge sits directly after
  * the hero and reveals itself once the slides scroll past.
  */
-export const revalidate = 60;
+// Admin writes revalidate on demand; the hour is only a safety net.
+export const revalidate = 3600;
 
 export default async function HomePage() {
   const [settings, categories, collections, faqs, arrivals, sellers, featured] = await Promise.all([

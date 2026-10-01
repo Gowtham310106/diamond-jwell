@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
     // can be sharper than grid thumbnails without unbounded enumeration.
     qualities: [70, 90],
     formats: ["image/avif", "image/webp"],
+    // Uploads get a unique key per file (storage.ts), so a URL never changes
+    // meaning: cache each transformation for a month instead of re-encoding.
+    minimumCacheTTL: 2_678_400,
+    // The breakpoints the layouts actually use. Every entry is a possible
+    // transformation per image, so the list is deliberately short.
+    deviceSizes: [640, 828, 1080, 1280, 1920],
+    imageSizes: [96, 160, 256, 384],
   },
 };
 
